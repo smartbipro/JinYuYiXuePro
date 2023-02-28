@@ -1,8 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<!DOCTYPE extension SYSTEM "extension.dtd"> 
-<extension name="JinYuYiXueDataPortalPro" alias="" desc="" priority="100" version="1.0"> 
-	<enable-jsp-processor>1</enable-jsp-processor> 
-	<!--    
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE extension SYSTEM "extension.dtd"><extension name="JinYuYiXueDataPortalPro" alias="数据门户扩展包" desc="数据门户扩展包" priority="100" version="1.0"><enable-jsp-processor>1</enable-jsp-processor><!--    
 	<servlet>  
 		<servlet-name>TestServlet</servlet-name> 
 		<servlet-class>smartbi.extension.test.TestServlet</servlet-class> 
@@ -20,5 +16,4 @@
 		<servlet-name>TestServlet</servlet-name> 
 		<url-pattern>/TestServlet</url-pattern>  
 	</servlet-mapping>  
-	--> 
-</extension> 
+	--></extension>

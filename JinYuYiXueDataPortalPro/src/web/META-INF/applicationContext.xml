@@ -4,26 +4,18 @@
     <bean id="framework" class="smartbi.framework.Framework" factory-method="getInstance"> 
         <property name="modules"> 
 			<map> 
-				<!--  
-				<entry><key><value>WizardQueryService</value></key><ref bean="WizardQueryService" /></entry> 
-				<entry><key><value>wizardQueryModule</value></key><ref bean="wizardQueryModule" /></entry> 
-				--> 
+				<entry><key><value>JinYuYiXueDataPortalModule</value></key><ref bean="JinYuYiXueDataPortalModule" /></entry> 
 			</map> 
         </property> 
     </bean> 
     <bean id="rmi" class="smartbi.framework.rmi.RMIModule" factory-method="getInstance"> 
         <property name="modules"> 
 			<map> 
-				<!--  
-				<entry><key><value>WizardQueryService</value></key><ref bean="WizardQueryService" /></entry> 
-				--> 
+				<entry><key><value>JinYuYiXueDataPortalModule</value></key><ref bean="JinYuYiXueDataPortalModule" /></entry> 
 			</map> 
         </property> 
     </bean> 
-	<!--  
-	<bean id="wizardQueryModule" class="smartbi.wizard.query.WizardQueryModule" factory-method="getInstance"> 
+	<bean id="JinYuYiXueDataPortalModule" class="smartbi.ext.jinyuyixue.dataportal.JinYuYiXueDataPortalModule" factory-method="getInstance"> 
 		<property name="daoModule" ref="dao"/> 
 	</bean> 
-	<bean id="WizardQueryService" class="smartbi.wizard.query.WizardQueryService" factory-method="getInstance"></bean> 
-	-->  
 </beans>  

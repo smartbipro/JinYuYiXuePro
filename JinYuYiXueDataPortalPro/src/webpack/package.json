@@ -1,0 +1,18 @@
+{
+  "name": "webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "smartbi build",
+    "dev": "smartbi dev",
+    "webpack-build": "smartbi webpack-build",
+    "webpack-dev": "smartbi webpack-dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "smartbi-ext-env": "^1.0.17"
+  }
+}
