@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import smartbi.catalogtree.CatalogElement;
 import smartbi.catalogtree.CatalogTreeModule;
 import smartbi.ext.jinyuyixue.dataportal.util.CommonUtils;
+import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.CATALOGTREE_NODE;
 import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.CREATERESOURCE_URL;
 import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.REPORT_TYPE;
@@ -68,8 +69,27 @@ public class IndexHomePageModule {
      */
     public JSONObject getIndexHomeTreeNodes() {
     	JSONObject result = new JSONObject();  
+    	result.put(CATALOGTREE_NODE.COMMON_TOOLS, getCommonTools());
+    	result.put(CATALOGTREE_NODE.DEFAULT_TREENODE, getCommonTreeNodeData());
+    	result.put(CATALOGTREE_NODE.SELF_TREENODE_DEFAULT, getSeflTreeNodeData());    	
+    	return result;
+    }
+    
+    /**
+     * 获取公共空间下的子节点
+     * @return
+     */
+    public JSONArray getCommonTreeNodeData() {
     	//获取公共空间下的子节点
-    	List<CatalogElement> defaultTreeNode = catalogTreeModule.getChildElements(CATALOGTREE_NODE.DEFAULT_TREENODE);
+    	List<CatalogElement> defaultTreeNode = catalogTreeModule.getChildElements(CATALOGTREE_NODE.DEFAULT_TREENODE); 
+    	return reSetList(defaultTreeNode);
+    }
+    
+    /**
+     * 获取个人空间下的所有子节点
+     * @return
+     */
+    public JSONArray getSeflTreeNodeData() {
     	//获取我的空间的子节点
     	List<CatalogElement> selfTreeNode = catalogTreeModule.getChildElements(CATALOGTREE_NODE.SELF_TREENODE + userManagerModule.getCurrentUser().getId());
     	List<CatalogElement> selfTreeNode_ = new ArrayList<CatalogElement>();
@@ -79,16 +99,23 @@ public class IndexHomePageModule {
     			continue;
     		}
     		selfTreeNode_.add(element);
-    	}
-    	result.put(CATALOGTREE_NODE.COMMON_TOOLS, getCommonTools());
-    	result.put(CATALOGTREE_NODE.DEFAULT_TREENODE, reSetList(defaultTreeNode));
-    	result.put(CATALOGTREE_NODE.SELF_TREENODE_DEFAULT, reSetList(selfTreeNode_));
-    	return result;
+    	}    
+    	return reSetList(selfTreeNode_);
     }
     
+    /**
+     * 重置资源对象列表
+     * @param list 资源对象
+     * @return
+     */
     private JSONArray reSetList(List<CatalogElement> list) {
     	JSONArray result = new JSONArray();
     	for(CatalogElement element : list) {
+//    		String reportType = element.getType();
+//    		if(reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY) ||
+//    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.Dashboard)) {
+//    			
+//    		}
     		result.put(CommonUtils.createJsonByElement(element));
     	}
     	return result;
@@ -98,7 +125,7 @@ public class IndexHomePageModule {
      * 获取常用工具的连接 包含即席查询、透视分析、自助仪表盘
      * @return
      */
-    private JSONArray getCommonTools() {
+    public JSONArray getCommonTools() {
     	JSONArray result = new JSONArray();
     	result.put(CommonUtils.createJson(REPORT_TYPE.COMBINEDQUERY,"即席查询",CREATERESOURCE_URL.COMBINEDQUERY_URL));
     	result.put(CommonUtils.createJson(REPORT_TYPE.INSIGHT,"透视分析",CREATERESOURCE_URL.INSIGHT_URL));
@@ -123,8 +150,23 @@ public class IndexHomePageModule {
     	JSONObject result = new JSONObject();
     	result.put(REPORT_TYPE.COMBINEDQUERY, CREATERESOURCE_URL.COMBINEDQUERY_URL);
     	result.put(REPORT_TYPE.INSIGHT, CREATERESOURCE_URL.INSIGHT_URL);
-    	result.put(REPORT_TYPE.DASHBOARD, CREATERESOURCE_URL.DASHBOARD_URL);
+    	result.put(REPORT_TYPE.DASHBOARD, CREATERESOURCE_URL.DASHBOARD_URL);    	
     	return result;
+    }
+    
+    /**
+     * 删除资源节点
+     * @param resId
+     * @return
+     */
+    public boolean deleteTreeNodeByResId(String resId) {
+    	try {
+    		catalogTreeModule.deleteCatalogElement(resId);
+    		return true;
+    	}catch(Exception e) {
+    		LOG.info("删除节点失败.");
+    		return false;
+    	}
     }
     
 }

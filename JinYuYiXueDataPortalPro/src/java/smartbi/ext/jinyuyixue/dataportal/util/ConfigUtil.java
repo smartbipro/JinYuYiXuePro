@@ -47,6 +47,18 @@ public class ConfigUtil {
 		//可视化查询
 		public static final String DASHBOARD = "dashboard";
 	}
+
+	/**
+	 * 操作权限
+	 */
+	public static class FUNCTION_DATA{
+		//即席查询创建操作权限
+		public static final String CUSTOM_DISPLAYCUSTOM_COMBINEDQUERY = "CUSTOM_DISPLAYCUSTOM_COMBINEDQUERY";
+		//透视分析创建操作权限
+		public static final String CUSTOM_DISPLAYCUSTOM_INSIGHT = "CUSTOM_DISPLAYCUSTOM_INSIGHT";
+		//自助仪表盘创建操作权限
+		public static final String XDASHBOARD_CREATE = "XDASHBOARD_CREATE";
+	}
 	
 	/**
 	 * 指标埋点数据类型
@@ -55,4 +67,79 @@ public class ConfigUtil {
 		public static final String CLICK = "click";
 		public static final String SEARCH = "search";
 	}
+	
+	/**
+	 * 资源树报表查询的类型 使用方法searchCatalogElementLikeAliasByType查询
+	 */
+	public static class RESTREE_REPORT_TYPE{
+		//即席查询
+		public static final String COMBINED_QUERY = "COMBINED_QUERY";
+		//透视分析
+		public static final String INSIGHT = "INSIGHT";
+		//交互式仪表盘
+		public static final String SMARTBIX_PAGE = "SMARTBIX_PAGE";
+		//电子表格
+		public static final String SPREADSHEET_REPORT = "SPREADSHEET_REPORT";
+		//WEB电子表格
+		public static final String WEB_SPREADSHEET_REPORT = "WEB_SPREADSHEET_REPORT";
+		//灵活分析
+		public static final String SIMPLE_REPORT = "SIMPLE_REPORT";
+		//仪表分析
+		public static final String Dashboard = "Dashboard";
+		//多维分析
+		public static final String OLAP_REPORT = "OLAP_REPORT";
+		//指标报表
+		public static final String METRIC_REPORT = "METRIC_REPORT";		
+		//WEB连接
+		public static final String URL = "URL";
+		//本地模板
+		public static final String FILE_RESOURCE = "FILE_RESOURCE";		
+		//个人目录
+		public static final String SELF_TREENODE = "SELF_TREENODE";
+		//公共目录
+		public static final String DEFAULT_TREENODE = "DEFAULT_TREENODE";
+	}
+
+	/**
+	 * 资源树数据集查询的类型 使用方法searchCatalogElementLikeAliasByType查询
+	 */
+	public static class RESTREE_DATASET_TYPE{
+		//存储过程查询
+		public static final String PROC_BUSINESS_VIEW = "PROC_BUSINESS_VIEW";
+		//SQL查询
+		public static final String TEXT_BUSINESS_VIEW = "TEXT_BUSINESS_VIEW";
+		//原生SQL查询
+		public static final String RAWSQL_BUSINESS_VIEW = "RAWSQL_BUSINESS_VIEW";
+		//Java查询
+		public static final String JAVA_BUSINESS_VIEW = "JAVA_BUSINESS_VIEW";
+		//可视化查询
+		public static final String BUSINESS_VIEW = "BUSINESS_VIEW";
+		//自助数据集
+		public static final String SMARTBIX_DATASET = "SMARTBIX_DATASET";
+		//数据模型
+		public static final String MT_DATAMODELS = "MT_DATAMODELS";
+	}	
+	
+	/**
+	 * 资源权限类型
+	 */
+	public static class PURVIEWTYPE{
+		//没有权限
+		public static final String NONE = "NONE";
+		//引用权限
+		public static final String REF = "REF";
+		//查看权限
+		public static final String READ = "READ";
+		//编辑权限
+		public static final String WRITE = "WRITE";
+		//删除权限（旧版本才有）
+		public static final String DELETE = "DELETE";
+		//再授权
+		public static final String GRANT = "GRANT";
+		//所有者
+		public static final String OWNER = "OWNER";
+		//概览
+		public static final String OVERVIEW = "OVERVIEW";
+	}
+	
 }
