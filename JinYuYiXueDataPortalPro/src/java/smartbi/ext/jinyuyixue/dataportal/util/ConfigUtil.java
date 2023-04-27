@@ -29,9 +29,9 @@ public class ConfigUtil {
 	 */
 	public static class CREATERESOURCE_URL {
 		//即席查询URL
-		public static final String COMBINEDQUERY_URL = "/vision/createresource.jsp?sourcetype=new&restype=combinedquery&hidetoolbaritems=MYFAVORITE,MPP,PRINT,CREATEINSIGHTINQUERY,TEMPTABLE";
+		public static final String COMBINEDQUERY_URL = "../vision/createresource.jsp?sourcetype=new&restype=combinedquery&hidetoolbaritems=MYFAVORITE,MPP,PRINT,CREATEINSIGHTINQUERY,TEMPTABLE";
 		//透视分析URL
-		public static final String INSIGHT_URL = "/vision/createresource.jsp?sourcetype=new&restype=INSIGHT&hidetoolbaritems=MPP,PRINT,CREATEINSIGHTINQUERY,TEMPTABLE";
+		public static final String INSIGHT_URL = "../vision/createresource.jsp?sourcetype=new&restype=INSIGHT&hidetoolbaritems=MPP,PRINT,CREATEINSIGHTINQUERY,TEMPTABLE";
 		//可视化查询URL
 		public static final String DASHBOARD_URL = "../smartbix/?integrated=true&showheader=false&dashboardInitId=I1f81a9e00169c94ac94a43130169d2cd942b0430&l=zh_CN&nodeid=DEFAULT_TREENODE#/dashboard";
 	}	
