@@ -111,12 +111,15 @@ public class IndexHomePageModule {
     private JSONArray reSetList(List<CatalogElement> list) {
     	JSONArray result = new JSONArray();
     	for(CatalogElement element : list) {
-//    		String reportType = element.getType();
-//    		if(reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY) ||
-//    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.Dashboard)) {
-//    			
-//    		}
-    		result.put(CommonUtils.createJsonByElement(element));
+    		String reportType = element.getType();
+    		if(reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY) ||
+    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.Dashboard) ||
+    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.DEFAULT_TREENODE) ||
+    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.SELF_TREENODE)) {
+    			JSONObject map = CommonUtils.createJsonByElement(element);
+    			map = CommonUtils.addDefaultDepartment(map, element);
+    			result.put(map);
+    		}
     	}
     	return result;
     }
@@ -138,8 +141,9 @@ public class IndexHomePageModule {
      * @param resId
      * @return
      */
-    public List<CatalogElement> getChildElements(String resId) {
-    	return catalogTreeModule.getChildElements(resId);
+    public JSONArray getChildElements(String resId) {
+    	List<CatalogElement> list = catalogTreeModule.getChildElements(resId);
+    	return reSetList(list);
     }
     
     /**

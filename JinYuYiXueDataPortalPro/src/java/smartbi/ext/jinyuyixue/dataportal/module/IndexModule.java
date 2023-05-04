@@ -3,6 +3,7 @@ package smartbi.ext.jinyuyixue.dataportal.module;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.user.IDepartment;
 import smartbi.usermanager.UserManagerModule;
+import smartbix.metricsmodel.dimension.service.DimensionBO;
 import smartbix.metricsmodel.metrics.service.MetricsBO;
 import smartbix.smartbi.metricsmodel.MetricsModelForVModule;
 /**
@@ -167,6 +169,7 @@ public class IndexModule {
      */
     public JSONArray reSetIndexDataList(List<ICatalogSearchResult> list, Map<String, JSONObject> cacheIndexData){
     	JSONArray result = new JSONArray();
+    	boolean isOnCache = CacheDataUtil.isOnCache();
     	//是否有创建报表的权限
     	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();
     	for(ICatalogSearchResult item : list) {    		
@@ -174,9 +177,13 @@ public class IndexModule {
     		String resId = element.getId();
     		indexAddSearchNumber(resId, element.getAlias());
     		JSONObject cacheIndexRec = cacheIndexData.get(resId);
-    		if(cacheIndexRec != null) {
+    		if(cacheIndexRec != null && isOnCache) {
         		//添加指标点击、搜索次数
     			cacheIndexRec = addIndexClickSearchNum(cacheIndexRec, element); 
+        		//添加授权
+    			cacheIndexRec = CommonUtils.addIsAuthorized(cacheIndexRec, element);
+        		//是否有创建即席查询、自助仪表盘权限
+    			cacheIndexRec = CommonUtils.addOpAuthorized(cacheIndexRec, opAuthorized);    			
     			cacheIndexData.put(resId, cacheIndexRec);
     			result.put(cacheIndexRec);
     			continue;
@@ -198,7 +205,9 @@ public class IndexModule {
     		//加载如返回列表中    		
     		result.put(map);
     		//将指标数据进行缓存
-    		cacheIndexData.put(resId, map);
+    		if(isOnCache) {
+    			cacheIndexData.put(resId, map);
+    		}
     	}
     	return result;
     }  
@@ -248,16 +257,146 @@ public class IndexModule {
     }    
  
     /**
-     * 获取指标详情信息
+     * 获取指标详情信息  如后续指标详情修改了，该方法也需要做相应调整
      * @param resId 指标资源id
      * @return
      */    
-	public JSONObject getIndexDetailInfo(String resId) {
+	public JSONArray getIndexDetailByResId(String resId) {
+		JSONArray result = new JSONArray();
 		//指标的配置信息
 		String configStr = SystemConfigService.getInstance().getLongValue("METRICS_ATTRIBUTE_CONFIGURE");
+		JSONObject config = JSONObject.fromString(configStr);
+		JSONArray defaultFields = config.getJSONArray("defaultFields");
+		JSONArray extendedFields = config.getJSONArray("extendedFields");
 		//指标对象
 		MetricsBO metricsBO = MetricsModelForVModule.getInstance().getMetricsManageService().getMetricsById(resId);
-		
-		return null;
+		//指标基本的信息
+		for(int i = 0, len = defaultFields.length(); i < len; i++) {
+			JSONObject source = defaultFields.getJSONObject(i);
+			result.put(toDefaultFieldJson(source, metricsBO));
+		}
+		//指标扩展信息
+		JSONObject extendedConfig = JSONObject.fromString(metricsBO.getExtended());
+		for(int i = 0, len = extendedFields.length(); i < len; i++) {
+			JSONObject source = extendedFields.getJSONObject(i);
+			result.put(toExtendedFieldJson(source, extendedConfig));
+		}
+		return result;
 	}	
+	
+	/**
+	 * 指标基本信息的获取方法
+	 * @param source     单独一个字段的指标配置信息
+	 * @param metricsBO  指标对象
+	 * @return
+	 */
+	private JSONObject toDefaultFieldJson(JSONObject source, MetricsBO metricsBO) {
+		JSONObject result = new JSONObject();
+		String name = source.optString("name");
+		String alias = source.optString("alias");
+		result.put("name", name);
+		result.put("alias", alias);		
+		switch(name) {
+			case "code"://指标编码
+				result.put("value", metricsBO.getCode());
+				break;
+			case "name"://指标名称
+				result.put("value", metricsBO.getName());
+				break;
+			case "type"://指标类型
+				String type = metricsBO.getType().toString();
+				Map<String, String> typeMap = changeJsonToMap(source);
+				if(typeMap.get(type) != null) {
+					type = typeMap.get(type);
+				}
+				result.put("value", type);
+				break;
+			case "summaryBasis"://汇总依据
+				String summaryBasis = metricsBO.getSummaryBasis();
+				Map<String, String> summaryBasisMap = changeJsonToMap(source);
+				if(summaryBasisMap.get(summaryBasis) != null) {
+					summaryBasis = summaryBasisMap.get(summaryBasis);
+				}
+				result.put("value", summaryBasis);				
+				break;
+			case "status"://指标状态
+				String status = metricsBO.getStatus();
+				Map<String, String> statusMap = changeJsonToMap(source);
+				if(statusMap.get(status) != null) {
+					status = statusMap.get(status);
+				}
+				result.put("value", status);
+				break;
+			case "effectiveDate"://启用日期
+				result.put("value", metricsBO.getEffectiveDate());
+				break;
+			case "expiratedDate"://禁用日期
+				result.put("value", metricsBO.getExpiratedDate());
+				break;
+			case "dimensionIds"://选择维度
+				List<DimensionBO> list = metricsBO.getBindingDimensions();
+				StringBuilder dimension = new StringBuilder();
+				for(DimensionBO bo : list) {
+					dimension.append(bo.getAlias()).append(",");
+				}
+				if(dimension.length() > 0) {
+					dimension.deleteCharAt(dimension.length()-1);
+				}
+				result.put("value", dimension.toString());
+				result.put("alias", "维度");
+				break;
+			case "factTableId"://选择事实表
+				result.put("value", metricsBO.getFactTable().getAlias());
+				result.put("alias", "事实表");
+				break;
+			case "factTableFieldId"://选择字段
+				result.put("value", metricsBO.getFactTableField().getAlias());
+				result.put("alias", "事实表字段");
+				break;
+		}
+		return result;
+	}
+	
+	/**
+	 * 基础字段和扩展字段中的枚举值转换为map
+	 * @param source  显示一个字段的所有配置信息，系统选项中配置的内容
+	 * @return
+	 */
+	private Map<String, String> changeJsonToMap(JSONObject source){
+		try {
+			JSONObject componentDefine = source.getJSONObject("componentDefine");
+			JSONObject standbyValue = componentDefine.getJSONObject("standbyValue");
+			JSONArray values = standbyValue.getJSONArray("value");
+			Map<String, String> result = new HashMap<String, String>();
+			for(int i = 0, len = values.length(); i < len; i++) {
+				JSONObject rc = values.getJSONObject(i);
+				result.put(rc.optString("value"), rc.optString("label"));
+			}		
+			return result;
+		}catch(Exception e) {
+			return new HashMap<String, String>();
+		}
+	}
+	
+	/**
+	 * 设置扩展字段的返回值
+	 * @param source   扩展字段的配置
+	 * @param config   扩展字段所有的值
+	 * @return
+	 */
+	private JSONObject toExtendedFieldJson(JSONObject source, JSONObject config) {
+		JSONObject result = new JSONObject();
+		String name = source.optString("name");
+		String alias = source.optString("alias");
+		String value = config.optString(name);
+		result.put("name", name);
+		result.put("alias", alias);
+		result.put("value", value);
+		Map<String, String> map = changeJsonToMap(source);
+		if(map.get(value) != null) {
+			result.put("value", map.get(value));
+		}
+		return result;
+	}
+	
 }

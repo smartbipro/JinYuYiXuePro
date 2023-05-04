@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import smartbi.catalogtree.CatalogElement;
+import smartbi.config.SystemConfigService;
 import smartbi.ext.jinyuyixue.dataportal.module.DatasetModule;
 import smartbi.ext.jinyuyixue.dataportal.module.IndexHomePageModule;
 import smartbi.ext.jinyuyixue.dataportal.module.IndexModule;
@@ -21,6 +22,7 @@ import smartbi.framework.IModule;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.repository.IDAOModule;
+import smartbix.augmenteddataset.util.StringUtil;
 
 /**
  * 数据门户扩展包Module实现类
@@ -124,7 +126,7 @@ public class JinYuYiXueDataPortalModule implements IModule {
      * @param resId 资源id
      * @return
      */
-    public List<CatalogElement> getChildElements(String resId) {
+    public JSONArray getChildElements(String resId) {
     	return indexHomePageModule.getChildElements(resId);
     }
     
@@ -194,26 +196,22 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	 * @param alias 别名
 	 * @param pageIndex 页码
 	 * @param pageSize 每页大小
+	 * @param pathResIds 业务域资源id
 	 * @return result 
      * @return
      */    
-    public JSONObject searchIndexDataLikeAlias(String alias, int pageIndex, int pageSize) {
+    public JSONObject searchIndexDataLikeAlias(String alias, int pageIndex, int pageSize, String pathResIds) {
     	List<String> types = new ArrayList<String>();
     	types.add("MT_ATOM_METRICS");//原子指标
     	types.add("MT_VIRTUAL_METRICS");//计算指标
-    	return indexModule.searchetricsIdLikeAliasByType(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);    			
+    	if(StringUtil.isNullOrEmpty(pathResIds)) {
+    		return indexModule.searchetricsIdLikeAliasByType(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
+    	} else {
+    		//指标加上业务域的查询
+    		return null;
+    	}
     }    
     
-    /**
-     * 获取指标详情信息
-     * @param resId 指标资源id
-     * @return
-     */
-    public JSONObject getIndexDetailInfo(String resId) {
-    	return indexModule.getIndexDetailInfo(resId); 
-    }
-
-	
     /**
 	 * 根据指标id获取影响性的模型列表数据
 	 * @param resId     资源id
@@ -239,6 +237,23 @@ public class JinYuYiXueDataPortalModule implements IModule {
     }
     
     /**
+	 * 根据type 搜索 ICatalogSearchResult
+	 * @param types 类型列表
+	 * @param alias 别名
+	 * @param purview purview
+	 * @param pageIndex 页码
+	 * @param pageSize 每页大小
+	 * @return result 
+     * @return
+     */
+    public JSONObject searchIndexModelDataLikeAlias(String alias, int pageIndex, int pageSize) {
+    	List<String> types = new ArrayList<String>();
+    	types.add("MT_MODEL");//指标模型
+    	//types.add("AUGMENTED_DATASET");//数据模型
+    	return datasetModule.searchIndexModelDataLikeAlias(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
+    }    
+    
+    /**
 	 * 公共报表模糊查询 列表分页方式呈现
 	 * @param alias 别名
 	 * @param pageIndex 页码
@@ -246,14 +261,14 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	 * @return result 
      * @return
      */    
-    public JSONObject searchCommonReportLikeAlias(String alias, int pageIndex, int pageSize) {
-    	List<String> types = new ArrayList<String>();
-    	types.add("SMARTBIX_PAGE");//自助仪表盘
-    	types.add("COMBINED_QUERY");//即席查询
-    	//types.add("SPREADSHEET_REPORT");//电子表格
-    	//types.add("WEB_SPREADSHEET_REPORT");//WEB电子表格
-    	return reportModule.searchCommonReportLikeAliasByType(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);    			
-    }
+//    public JSONObject searchCommonReportLikeAlias(String alias, int pageIndex, int pageSize) {
+//    	List<String> types = new ArrayList<String>();
+//    	types.add("SMARTBIX_PAGE");//自助仪表盘
+//    	types.add("COMBINED_QUERY");//即席查询
+//    	//types.add("SPREADSHEET_REPORT");//电子表格
+//    	//types.add("WEB_SPREADSHEET_REPORT");//WEB电子表格    	    	
+//    	return reportModule.searchCommonReportLikeAliasByType(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);    			
+//    }
     
     /**
 	 * 私有报表模糊查询 列表分页方式呈现
@@ -263,13 +278,82 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	 * @return result 
      * @return
      */    
-    public JSONObject searchSelfReportLikeAlias(String alias, int pageIndex, int pageSize) {
+//    public JSONObject searchSelfReportLikeAlias(String alias, int pageIndex, int pageSize) {
+//    	List<String> types = new ArrayList<String>();
+//    	types.add("SMARTBIX_PAGE");//自助仪表盘
+//    	types.add("COMBINED_QUERY");//即席查询
+//    	//types.add("SPREADSHEET_REPORT");//电子表格
+//    	//types.add("WEB_SPREADSHEET_REPORT");//WEB电子表格
+//    	return reportModule.searchSelfReportLikeAlias(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);    			
+//    }
+    
+    /**
+	 * 指标模糊查询 列表分页方式呈现
+	 * @param alias 别名
+	 * @param pageIndex 页码
+	 * @param pageSize 每页大小
+	 * @param reportType 类型 当传入为空时，不区分公共报表和个人报表 "person":个人报表 "common":公共报表
+	 * @return result 
+     * @return
+     */    
+    public JSONObject searchReportDataLikeAlias(String alias, int pageIndex, int pageSize, String reportType) {
     	List<String> types = new ArrayList<String>();
     	types.add("SMARTBIX_PAGE");//自助仪表盘
-    	types.add("COMBINED_QUERY");//即席查询
-    	//types.add("SPREADSHEET_REPORT");//电子表格
-    	//types.add("WEB_SPREADSHEET_REPORT");//WEB电子表格
-    	return reportModule.searchSelfReportLikeAlias(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);    			
-    }    
+    	types.add("COMBINED_QUERY");//即席查询    	
+    	return reportModule.searchReportDataLikeAlias(types, alias, reportType, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
+    }
+    
+    
+    /**
+     * 即席查询/透视分析根据报表id获取表头信息
+     * @param resId
+     * @param type
+     * @return
+     */
+    public JSONArray getReportMultiHeader(String resId, String type) {
+    	if("COMBINED_QUERY".equals(type)) {
+    		return getCombinedMultiHeader(resId);
+    	} else if("INSIGHT".equals(type)) {
+    		return getInsightMultiHeader(resId);
+    	}
+    	return null;
+    }
+    
+    /**
+     * 透视分析根据报表id获取表头信息
+     * @param resId
+     * @return
+     */
+    public JSONArray getInsightMultiHeader(String resId) {
+    	return reportModule.getInsightMultiHeader(resId);
+    }
+    
+    /**
+     * 即席查询根据报表id获取表头信息
+     * @param resId
+     * @return
+     */
+    public JSONArray getCombinedMultiHeader(String resId) {
+    	return reportModule.getCombinedMultiHeader(resId);
+    }
+    
+    
+    /**
+     * 指标业务域系统选项配置
+     * @return
+     */
+    public JSONObject getIndexYwyConfig() {
+    	String indexYwyConfig = SystemConfigService.getInstance().getLongValue("JYYX_INDEX_YWY_CONFIG");
+    	return JSONObject.fromString(indexYwyConfig);
+    }
+    
+    /**
+     * 获取指标详情信息  如后续指标详情修改了，该方法也需要做相应调整
+     * @param resId 指标资源id
+     * @return
+     */    
+    public JSONArray getIndexDetailByResId(String resId) {
+    	return indexModule.getIndexDetailByResId(resId);
+    }
     
 }

@@ -61,5 +61,12 @@ public class CacheDataUtil {
     	return "清空自定义指标、数据集、报表缓存所有数据成功.";
     }
 
+    /**
+     * 是否启动缓存
+     * @return
+     */
+    public static boolean isOnCache() {
+    	return true;
+    }
 
 }

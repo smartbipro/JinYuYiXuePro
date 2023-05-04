@@ -131,7 +131,7 @@ public class CommonUtils {
     	json.put("isCreateCombinedquery", false);
     	json.put("isCreateDashboard", false);  
     	json.put("isCreateInsight", false); 
-    	if(!json.optBoolean("isAuthorized", false)) {
+    	if(json.optBoolean("isAuthorized", false)) {
 	    	json.put("isCreateCombinedquery", opAuthorized.optBoolean(REPORT_TYPE.COMBINEDQUERY, false));
 	    	json.put("isCreateDashboard", opAuthorized.optBoolean(REPORT_TYPE.DASHBOARD, false));
 	    	json.put("isCreateInsight", opAuthorized.optBoolean(REPORT_TYPE.INSIGHT, false));
@@ -174,6 +174,7 @@ public class CommonUtils {
      */
 	public static JSONArray reSetIndexModelAndReportDataListByCatalog(List<ICatalogSearchResult> list,
 			Map<String, JSONObject> cacheData, boolean isReportType) {
+		boolean isOnCache = CacheDataUtil.isOnCache();
     	JSONArray result = new JSONArray();
     	//是否有创建报表的权限
     	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();
@@ -181,7 +182,7 @@ public class CommonUtils {
     		CatalogElement element = (CatalogElement) item.getCatalogElement();
     		String resId = element.getId();
     		JSONObject cacheRec = cacheData.get(resId);
-    		if(cacheRec != null) {
+    		if(cacheRec != null && isOnCache) {
         		//添加指标点击、搜索次数
     			result.put(cacheRec);
     			continue;
@@ -217,7 +218,9 @@ public class CommonUtils {
     		map = CommonUtils.addOpAuthorized(map, opAuthorized);
 		}
 		//将指标模型、报表数据进行缓存
-		cacheData.put(resId, map);	
+		if(CacheDataUtil.isOnCache()) {
+			cacheData.put(resId, map);
+		}
 		return map;
 	}
 	
@@ -227,7 +230,7 @@ public class CommonUtils {
      * @param element
      * @return
      */
-    private static JSONObject addDefaultDepartment(JSONObject json, CatalogElement element) {
+    public static JSONObject addDefaultDepartment(JSONObject json, CatalogElement element) {
 		IDepartment department = userManagerModule.getDefaultDepartment(element.getAuthorUserid());
 		json.put("defaultDept", "");
 		if(department != null) {
