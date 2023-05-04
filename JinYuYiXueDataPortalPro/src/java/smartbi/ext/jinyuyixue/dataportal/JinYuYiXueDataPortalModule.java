@@ -191,6 +191,25 @@ public class JinYuYiXueDataPortalModule implements IModule {
     	return CommonUtils.getReportFunctionByCurrentUser();
     }
     
+	/**
+	 * 获取指标点击次数数据	
+	 * @param resId 资源id
+	 * @return
+	 */
+    public JSONObject getIndexClickDataById(String resId) {
+    	IndexClickData indexClickData =  indexModule.getIndexClickDataById(resId);
+    	JSONObject result = new JSONObject();
+    	if(indexClickData != null) {
+    		result.put("indexId", indexClickData.getIndexId());
+    		result.put("indexName", indexClickData.getIndexName());
+    		result.put("clickNum", indexClickData.getClickNum());
+    		result.put("searchNum", indexClickData.getSearchNum());
+    		result.put("createDateTime", indexClickData.getCreateDateTime());
+    		result.put("updateDateTime", indexClickData.getUpdateDateTime());
+    	}
+    	return result;
+    }
+    
     /**
 	 * 指标模糊查询 列表分页方式呈现
 	 * @param alias 别名
@@ -342,9 +361,9 @@ public class JinYuYiXueDataPortalModule implements IModule {
      * 指标业务域系统选项配置
      * @return
      */
-    public JSONObject getIndexYwyConfig() {
-    	String indexYwyConfig = SystemConfigService.getInstance().getLongValue("JYYX_INDEX_YWY_CONFIG");
-    	return JSONObject.fromString(indexYwyConfig);
+    public JSONArray getIndexYwyConfig() {
+    	String indexYwyConfig = getSystemConfigLongValue("JYYX_INDEX_YWY_CONFIG");
+    	return JSONArray.fromString(indexYwyConfig);
     }
     
     /**
@@ -354,6 +373,25 @@ public class JinYuYiXueDataPortalModule implements IModule {
      */    
     public JSONArray getIndexDetailByResId(String resId) {
     	return indexModule.getIndexDetailByResId(resId);
+    }
+    
+    /**
+     * 获取系统选项长字符串
+     * @param key 键值
+     * @return
+     */
+    public String getSystemConfigLongValue(String key) {
+    	return SystemConfigService.getInstance().getLongValue(key);    	
+    }
+    
+    
+    /**
+     * 获取系统选项字符串
+     * @param key 键值
+     * @return
+     */
+    public String getSystemConfigValue(String key) {
+    	return SystemConfigService.getInstance().getValue(key);    	
     }
     
 }

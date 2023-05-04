@@ -35,6 +35,7 @@ import smartbi.usermanager.UserManagerModule;
 import smartbix.metricsmodel.dimension.service.DimensionBO;
 import smartbix.metricsmodel.metrics.service.MetricsBO;
 import smartbix.smartbi.metricsmodel.MetricsModelForVModule;
+import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.INDEX_DETAIL_TITLE;
 /**
  * 指标模块实现类
  */
@@ -270,19 +271,43 @@ public class IndexModule {
 		JSONArray extendedFields = config.getJSONArray("extendedFields");
 		//指标对象
 		MetricsBO metricsBO = MetricsModelForVModule.getInstance().getMetricsManageService().getMetricsById(resId);
+		//获取指标类型
+		String classId = metricsBO.getClassId();
+		result.put(getIndexClassObjectById((classId)));
+
 		//指标基本的信息
 		for(int i = 0, len = defaultFields.length(); i < len; i++) {
 			JSONObject source = defaultFields.getJSONObject(i);
 			result.put(toDefaultFieldJson(source, metricsBO));
 		}
 		//指标扩展信息
-		JSONObject extendedConfig = JSONObject.fromString(metricsBO.getExtended());
+		JSONObject extendedConfig = new JSONObject();
+		if(metricsBO.getExtended() != null) {
+			extendedConfig = JSONObject.fromString(metricsBO.getExtended());
+		}
 		for(int i = 0, len = extendedFields.length(); i < len; i++) {
 			JSONObject source = extendedFields.getJSONObject(i);
 			result.put(toExtendedFieldJson(source, extendedConfig));
 		}
 		return result;
 	}	
+	
+	/**
+	 * 根据指标分类id获取指标分类信息
+	 * @param classId
+	 * @return
+	 */
+	private JSONObject getIndexClassObjectById(String classId) {
+		JSONObject result = new JSONObject();
+		result.put("name", classId);
+		result.put("alias", "指标分类");
+		CatalogElement classElement = catalogTreeModule.getCatalogElementById(classId);
+		if(classElement != null) {
+			result.put("name", classElement.getName());
+			result.put("value", classElement.getAlias());
+		}
+		return result;
+	}
 	
 	/**
 	 * 指标基本信息的获取方法
@@ -389,6 +414,7 @@ public class IndexModule {
 		String name = source.optString("name");
 		String alias = source.optString("alias");
 		String value = config.optString(name);
+		
 		result.put("name", name);
 		result.put("alias", alias);
 		result.put("value", value);
@@ -398,5 +424,14 @@ public class IndexModule {
 		}
 		return result;
 	}
+	
+	/**
+	 * 获取指标点击次数数据	
+	 * @param resId 资源id
+	 * @return
+	 */
+    public IndexClickData getIndexClickDataById(String resId) {
+    	return indexClickDataDao.getIndexClickDataById(resId);
+    }
 	
 }

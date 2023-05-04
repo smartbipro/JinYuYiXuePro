@@ -142,4 +142,19 @@ public class ConfigUtil {
 		public static final String OVERVIEW = "OVERVIEW";
 	}
 	
+	/**
+	 * 指标详情内容
+	 *
+	 */
+	public static class INDEX_DETAIL_TITLE {
+		//id值
+		public static final String ID = "id";
+		//名称
+		public static final String NAME = "name";
+		//别名
+		public static final String ALIAS = "alias";
+		//详情值		
+		public static final String VALUE = "value";		
+	}
+	
 }
