@@ -2,6 +2,7 @@ package smartbi.ext.jinyuyixue.dataportal.module;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import smartbi.catalogtree.CatalogElement;
 import smartbi.catalogtree.CatalogTreeModule;
+import smartbi.catalogtree.ICatalogElement;
 import smartbi.catalogtree.ICatalogSearchResult;
+import smartbi.catalogtree.PurviewType;
 import smartbi.config.SystemConfigService;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickData;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickDataDAO;
@@ -21,21 +24,20 @@ import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickDataDetail;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickDataDetailDAO;
 import smartbi.ext.jinyuyixue.dataportal.util.CacheDataUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.CommonUtils;
-import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.PageUtil;
-import smartbi.index.IDocument;
-import smartbi.metadata.MetadataModule;
-import smartbi.metadata.assist.CategoryResource;
 import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.INDEX_CLICK_DATA_TYPE;
-import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.REPORT_TYPE;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
-import smartbi.user.IDepartment;
 import smartbi.usermanager.UserManagerModule;
+import smartbix.metricsmodel.common.search.ConditionRelation;
+import smartbix.metricsmodel.common.search.MTPOFieldNameEnum;
 import smartbix.metricsmodel.dimension.service.DimensionBO;
 import smartbix.metricsmodel.metrics.service.MetricsBO;
+import smartbix.metricsmodel.metrics.service.MetricsFilter;
+import smartbix.metricsmodel.util.SearchResult;
 import smartbix.smartbi.metricsmodel.MetricsModelForVModule;
-import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.INDEX_DETAIL_TITLE;
+import smartbix.util.FilterOperationType;
+import smartbix.util.LogicOperatorType;
 /**
  * 指标模块实现类
  */
@@ -139,42 +141,102 @@ public class IndexModule {
      */
     public JSONObject searchetricsIdLikeAliasByType(List<String> types, String alias,
 			String purview, int pageIndex, int pageSize) {
-    	JSONObject result = new JSONObject();
     	try {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
-	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
-	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheIndexData);
-	    	result.put("data", resultList);
-	    	result.put("success", true);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);
-	    	result.put("count", resultList.length());
+	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
+	    	List<ICatalogElement> pageList = changeToCatalogElementList(tmpPageList);
+	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheIndexData);	    	
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
     	}catch(Exception e) {
-    		LOG.error("模糊查询报表错误：" + e.getMessage(),e);
-	    	result.put("data", new JSONArray());
-	    	result.put("success", false);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);  
-	    	result.put("count", 0);
-    		result.put("error", e.getMessage());
+    		LOG.error("searchetricsIdLikeAliasByType指标模糊查询错误(非业务域)：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "searchetricsIdLikeAliasByType错误：" + e.getMessage());
     	}
-    	return result;
     }   
+    
+    /**
+	 * 根据type 搜索 ICatalogSearchResult
+	 * @param types 类型列表
+	 * @param alias 别名
+	 * @param purview purview
+	 * @param pageIndex 页码
+	 * @param pageSize 每页大小
+	 * @return result 
+     * @return
+     */
+    public JSONObject searchetricsIdLikeAliasByTypeAndPath(String pathResIds, String alias,
+    		PurviewType purview, int pageIndex, int pageSize) {
+    	try {
+    		//指标加上业务域的查询
+    		List<Object> modelClassIds = new ArrayList<Object>();
+    		String[] pathResIdArray = pathResIds.split(",");
+    		for(int i = 0, len = pathResIdArray.length; i < len; i++) {
+    			modelClassIds.add(pathResIdArray[0]);
+    		}    	
+    		//构造搜索的对象
+    		ConditionRelation conditionRelation = new ConditionRelation();
+    		conditionRelation.setChildNodes(new ArrayList<ConditionRelation>());
+    		conditionRelation.setRelation(LogicOperatorType.AND);
+    		// 搜索分类
+    		ConditionRelation classIdCondition = new ConditionRelation();
+    		classIdCondition.setKey(MTPOFieldNameEnum.METRICS_MULTI_CLASS_ID);
+    		classIdCondition.setOperatorType(FilterOperationType.IN);
+    		classIdCondition.setValues(modelClassIds);
+    		conditionRelation.getChildNodes().add(classIdCondition);
+    		// 模糊搜索名称
+    		ConditionRelation nameCondition = new ConditionRelation();
+    		nameCondition.setKey(MTPOFieldNameEnum.METRICS_NAME);
+    		nameCondition.setOperatorType(FilterOperationType.LIKE);
+    		nameCondition.setValues(Arrays.asList((Object)alias));
+    		conditionRelation.getChildNodes().add(nameCondition);    		
+    		// 构建searchFilter
+    		MetricsFilter metricsFilter = new MetricsFilter();
+    		metricsFilter.setConditionRelation(conditionRelation);
+    		//获取指标信息
+
+    		SearchResult<MetricsBO> searchResult = MetricsModelForVModule.getInstance().getMetricsManageService().searchMetrics(metricsFilter, purview);
+    		List<MetricsBO> list = searchResult.getResultList();
+	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
+	    	List<ICatalogElement> pageList = changeToCatalogElementList(tmpPageList);
+	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheIndexData);
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
+    	}catch(Exception e) {
+    		LOG.error("searchetricsIdLikeAliasByTypeAndPath指标模糊查询错误(业务域)：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "searchetricsIdLikeAliasByTypeAndPath错误：" + e.getMessage());
+    	}
+    }  
+    
+    /**
+     * 将列表数据转换成资源对象
+     * @param list 列表
+     * @return
+     */
+    private List<ICatalogElement> changeToCatalogElementList(List<Object> list){
+    	List<ICatalogElement> result = new ArrayList<ICatalogElement>();
+    	for(Object rec : list) {
+    		if(rec instanceof ICatalogSearchResult){
+    			result.add(((ICatalogSearchResult)rec).getCatalogElement());
+    		} else if (rec instanceof MetricsBO){
+    			result.add(catalogTreeModule.getCatalogElementById(((MetricsBO) rec).getId()));
+    		}
+    	}    	
+    	return result;
+    }
     
     
     /////////////////////指标组合//////////////////////////
     /**
      * 重置资源列表数据
-     * @param list
+     * @param list 列表数据
+     * @param cacheIndexData 指标缓存对象
      * @return
      */
-    public JSONArray reSetIndexDataList(List<ICatalogSearchResult> list, Map<String, JSONObject> cacheIndexData){
+    public JSONArray reSetIndexDataList(List<ICatalogElement> list, Map<String, JSONObject> cacheIndexData){
     	JSONArray result = new JSONArray();
     	boolean isOnCache = CacheDataUtil.isOnCache();
     	//是否有创建报表的权限
     	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();
-    	for(ICatalogSearchResult item : list) {    		
-    		CatalogElement element = (CatalogElement) item.getCatalogElement();
+    	for(ICatalogElement item : list) {    		
+    		CatalogElement element = (CatalogElement) item;
     		String resId = element.getId();
     		indexAddSearchNumber(resId, element.getAlias());
     		JSONObject cacheIndexRec = cacheIndexData.get(resId);
@@ -215,21 +277,32 @@ public class IndexModule {
     
     /**
      * 添加数据更新日期和提出部门
-     * @param json
-     * @param element
+     * @param json       目标json对象
+     * @param metricsBO  指标对象
      * @return
      */
     private JSONObject addDataUpdateAndProposedDept(JSONObject json, MetricsBO metricsBO) {
-    	//获取到扩展指标的值
-    	json.put("proposedDept", "提出部门从指标扩展内容中取值");
-    	json.put("dataUpdateDate", "数据更新日期从指标扩展内容中取值");
+		//指标扩展字段的配置
+    	String configStr = SystemConfigService.getInstance().getLongValue("JYYX_INDEX_EXTENDS_CONFIG");
+    	//设置提出部门、数据更新字段默认值为空
+    	json.put("proposedDept", "");
+    	json.put("dataUpdateDate", "");    	
+    	JSONObject config = JSONObject.fromString(configStr);
+		//指标扩展信息
+		JSONObject extendedConfig = new JSONObject();
+		if(metricsBO.getExtended() != null) {
+			extendedConfig = JSONObject.fromString(metricsBO.getExtended());
+	    	//获取 提出部门、数据更新字段 的值
+	    	json.put("proposedDept", extendedConfig.optString(config.optString("ProposedDept","ProposedDept"), ""));//"提出部门从指标扩展内容中取值");
+	    	json.put("dataUpdateDate", extendedConfig.optString(config.optString("DataUpdateTime","DataUpdateTime"), ""));//"数据更新日期从指标扩展内容中取值");	
+		}
 		return json;
     }
     
     /**
      * 添加指标点击、查询次数信息
-     * @param json
-     * @param element
+     * @param json    目标json对象
+     * @param element 指标资源对象
      * @return
      */    
     private JSONObject addIndexClickSearchNum(JSONObject json, CatalogElement element) {
@@ -247,12 +320,13 @@ public class IndexModule {
     
     /**
      * 指标名称加上事实表字段名称
-     * @param json
-     * @param element
+     * @param json       目标json对象
+     * @param metricsBO  指标对象
      * @return
      */
-    private JSONObject addIndexFieldName(JSONObject json, MetricsBO metricsBO) {    	
+    private JSONObject addIndexFieldName(JSONObject json, MetricsBO metricsBO) { 
 		json.put("alias2", json.get("alias") + "(" + metricsBO.getFactTableField().getName() + ")");
+		json.put("modelId", metricsBO.getModelId());
 		json.put("factTableName", metricsBO.getFactTable().getName());
     	return json;
     }    
@@ -294,7 +368,7 @@ public class IndexModule {
 	
 	/**
 	 * 根据指标分类id获取指标分类信息
-	 * @param classId
+	 * @param classId 指标分类id
 	 * @return
 	 */
 	private JSONObject getIndexClassObjectById(String classId) {

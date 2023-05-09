@@ -14,6 +14,9 @@ import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.REPORT_TYPE;
 import smartbi.index.IDocument;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
+import smartbi.scheduletask.ScheduleTaskModule;
+import smartbi.sdk.ClientConnector;
+import smartbi.sdk.ClientConnectorFactory;
 import smartbi.user.IDepartment;
 import smartbi.usermanager.UserManagerModule;
 
@@ -239,4 +242,56 @@ public class CommonUtils {
     	return json;
     }	
     
+    /**
+     * 返回正确的数据集内容
+     * @param data       数据列表
+     * @param pageIndex  页码
+     * @param pageSize   每页大小
+     * @return
+     */
+    public static JSONObject getSuccessData(JSONArray data,int pageIndex, int pageSize) {
+    	JSONObject result = new JSONObject();
+    	result.put("data", data);
+    	result.put("success", true);
+    	result.put("pageIndex", pageIndex);
+    	result.put("pageSize", pageSize);
+    	result.put("count", data.length());  
+    	return result;
+    }
+    
+    /**
+     * 返回正确的数据集内容
+     * @param data       数据列表
+     * @param pageIndex  页码
+     * @param pageSize   每页大小
+     * @param errmsg     错误信息
+     * @return
+     */    
+    public static JSONObject getFailData(int pageIndex, int pageSize, String errmsg) {
+    	JSONObject result = new JSONObject();
+    	result.put("data", new JSONArray());
+    	result.put("success", false);
+    	result.put("pageIndex", pageIndex);
+    	result.put("pageSize", pageSize);  
+    	result.put("count", 0);
+		result.put("error", errmsg);
+    	return result;    	
+    }    
+    
+    /**
+     * 获取ClientConnector
+     * 
+     * @param username 用户名
+     * @return connector
+     */
+    public static ClientConnector getClientConnector(String username) {
+        ClientConnector connector = null;
+        connector = ClientConnectorFactory.getClientConnector(null);
+        String user = "scheduleAdmin";
+        String password = ScheduleTaskModule.getInstance().getScheduleAdminPassword();
+        connector.openFromDB(user, password);
+        connector.switchUser(username);
+        return connector;
+    }    
+
 }

@@ -7,37 +7,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import smartbi.catalogtree.CatalogElement;
 import smartbi.catalogtree.CatalogTreeModule;
 import smartbi.catalogtree.ICatalogSearchResult;
 import smartbi.combinedquery.repository.CombinedQuery;
-import smartbi.combinedquery.repository.CombinedQueryDAO;
 import smartbi.combinedquery.repository.CombinedQueryDAOFactory;
 import smartbi.ext.jinyuyixue.dataportal.util.CacheDataUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.CommonUtils;
 import smartbi.ext.jinyuyixue.dataportal.util.PageUtil;
-import smartbi.freequery.client.simplereport.ClientReportService;
-import smartbi.freequery.client.simplereport.ClientReportView;
-import smartbi.freequery.report.SimpleReportBO;
 import smartbi.index.IDocument;
-import smartbi.insight.InsightService;
 import smartbi.insight.repository.Insight;
 import smartbi.insight.repository.InsightDAOFactory;
 import smartbi.metadata.MetadataModule;
 import smartbi.metadata.assist.CategoryResource;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
-import smartbi.oltp.FreeQueryModule;
-import smartbi.scheduletask.ScheduleTaskModule;
-import smartbi.sdk.ClientConnector;
-import smartbi.sdk.ClientConnectorFactory;
-import smartbi.sdk.service.combinedquery.ClientCombinedReportService;
-import smartbi.sdk.service.combinedquery.ClientCombinedReportView;
-import smartbi.sdk.service.insight.ClientInsightService;
-import smartbi.sdk.service.insight.InsightReport;
 import smartbi.usermanager.UserManagerModule;
 import smartbi.util.XmlUtility;
 import smartbix.util.StringUtil;
@@ -83,7 +69,6 @@ public class ReportModule {
      */
     public JSONObject searchReportDataLikeAlias(List<String> types, String alias, String reportType,
 			String purview, int pageIndex, int pageSize) {
-    	JSONObject result = new JSONObject();
     	try {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
 	    	
@@ -95,87 +80,21 @@ public class ReportModule {
 	    			list = filterCommonReportData(list);
 	    		}
 	    	}
+	    	if(list != null && list.size() == 0) {
+	    		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize);
+	    	}	    	
 	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByCatalog(pageList, CacheDataUtil.cacheReportData, true);
-	    	result.put("data", resultList);
-	    	result.put("success", true);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);
-	    	result.put("count", resultList.length());
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
     	}catch(Exception e) {
-    		LOG.error("关联指标数据模型错误：" + e.getMessage(),e);
-    		result.put("success", false);
-    		result.put("error", e.getMessage());
+    		LOG.error("searchReportDataLikeAlias错误：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "searchReportDataLikeAlias错误：" + e.getMessage());
     	}
-    	return result;    	
-    	
-    	
-    	
     }
     
     /**
-	 * 公共报表模糊查询 列表分页方式呈现
-	 * @param types 类型列表
-	 * @param alias 别名
-	 * @param purview purview
-	 * @param pageIndex 页码
-	 * @param pageSize 每页大小
-	 * @return result 
-     * @return
-     */
-//    public JSONObject searchCommonReportLikeAliasByType(List<String> types, String alias,
-//			String purview, int pageIndex, int pageSize) {
-//    	JSONObject result = new JSONObject();
-//    	try {
-//	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
-//	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
-//	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByCatalog(pageList, CacheDataUtil.cacheReportData, true);
-//	    	result.put("data", resultList);
-//	    	result.put("success", true);
-//	    	result.put("pageIndex", pageIndex);
-//	    	result.put("pageSize", pageSize);
-//	    	result.put("count", resultList.length());
-//    	}catch(Exception e) {
-//    		LOG.error("关联指标数据模型错误：" + e.getMessage(),e);
-//    		result.put("success", false);
-//    		result.put("error", e.getMessage());
-//    	}
-//    	return result;
-//    }  
-    
-    /**
-	 * 私有报表模糊查询 列表分页方式呈现
-	 * @param types 类型列表
-	 * @param alias 别名
-	 * @param purview purview
-	 * @param pageIndex 页码
-	 * @param pageSize 每页大小
-	 * @return result 
-     * @return
-     */    
-//    public JSONObject searchSelfReportLikeAlias(List<String> types, String alias,
-//			String purview, int pageIndex, int pageSize) {
-//    	JSONObject result = new JSONObject();
-//    	try {
-//	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
-//	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
-//	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByCatalog(pageList, CacheDataUtil.cacheReportData, true);
-//	    	result.put("data", resultList);
-//	    	result.put("success", true);
-//	    	result.put("pageIndex", pageIndex);
-//	    	result.put("pageSize", pageSize);
-//	    	result.put("count", resultList.length());
-//    	}catch(Exception e) {
-//    		LOG.error("关联指标数据模型错误：" + e.getMessage(),e);
-//    		result.put("success", false);
-//    		result.put("error", e.getMessage());
-//    	}
-//    	return result;
-//    }
-    
-    /**
      * 获取公共报表的数据
-     * @param list
+     * @param list 报表列表数据
      * @return
      */
     private List<ICatalogSearchResult> filterCommonReportData(List<ICatalogSearchResult> list){
@@ -184,7 +103,7 @@ public class ReportModule {
     
     /**
      * 获取个人报表数据
-     * @param list
+     * @param list  报表列表数据
      * @return
      */
     private List<ICatalogSearchResult> filterSelfReportData(List<ICatalogSearchResult> list){
@@ -214,8 +133,6 @@ public class ReportModule {
     	return result;    	
     }
     
-        
-    
     /**
 	 * 根据指标id获取影响性的报表列表数据
 	 * @param resId     资源id
@@ -225,7 +142,6 @@ public class ReportModule {
      * @return
      */
     public JSONObject getReportByIndexResId(String resId, int pageIndex, int pageSize) {
-    	JSONObject result = new JSONObject();
     	try {
     		CategoryResource categoryResource = new CategoryResource(); 
     		categoryResource.setId(resId);
@@ -237,22 +153,12 @@ public class ReportModule {
     		List<IDocument> list = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);    		
 	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
-	    	result.put("data", resultList);
-	    	result.put("success", true);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);
-	    	result.put("count", resultList.length());
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
     	}catch(Exception e) {
-    		LOG.error("模糊查询报表错误：" + e.getMessage(),e);
-	    	result.put("data", new JSONArray());
-	    	result.put("success", false);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);  
-	    	result.put("count", 0);
-    		result.put("error", e.getMessage());
+    		LOG.error("getReportByIndexResId错误：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "getReportByIndexResId错误：" + e.getMessage());
     	}
-    	return result;
-    }      
+    }  
     
     /**
      * 透视分析根据报表id获取表头信息
@@ -296,7 +202,6 @@ public class ReportModule {
     		JSONArray result = new JSONArray();
     		Insight insight = InsightDAOFactory.getInsightDAO().load(resId);
 			String content= insight.getContent();
-			System.out.println(content);
 			Document doc = XmlUtility.parse(content);
 			Element root = (Element) doc.getFirstChild();
 			NodeList bizViewDefineList = root.getElementsByTagName("fields");
@@ -364,20 +269,4 @@ public class ReportModule {
     	}
     	return null;
     }
-    
-    /**
-     * 获取ClientConnector
-     * 
-     * @param username 用户名
-     * @return connector
-     */
-    private ClientConnector getClientConnector(String username) {
-        ClientConnector connector = null;
-        connector = ClientConnectorFactory.getClientConnector(null);
-        String user = "scheduleAdmin";
-        String password = ScheduleTaskModule.getInstance().getScheduleAdminPassword();
-        connector.openFromDB(user, password);
-        connector.switchUser(username);
-        return connector;
-    }    
 }

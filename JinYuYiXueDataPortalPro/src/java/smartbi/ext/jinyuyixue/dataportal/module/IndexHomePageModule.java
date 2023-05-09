@@ -138,7 +138,7 @@ public class IndexHomePageModule {
     
     /**
      * 获取资源下的子节点
-     * @param resId
+     * @param resId 资源id
      * @return
      */
     public JSONArray getChildElements(String resId) {
@@ -160,7 +160,7 @@ public class IndexHomePageModule {
     
     /**
      * 删除资源节点
-     * @param resId
+     * @param resId 资源id
      * @return
      */
     public boolean deleteTreeNodeByResId(String resId) {

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import smartbi.catalogtree.CatalogElement;
+import smartbi.catalogtree.PurviewType;
 import smartbi.config.SystemConfigService;
 import smartbi.ext.jinyuyixue.dataportal.module.DatasetModule;
 import smartbi.ext.jinyuyixue.dataportal.module.IndexHomePageModule;
@@ -226,14 +227,13 @@ public class JinYuYiXueDataPortalModule implements IModule {
     	if(StringUtil.isNullOrEmpty(pathResIds)) {
     		return indexModule.searchetricsIdLikeAliasByType(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
     	} else {
-    		//指标加上业务域的查询
-    		return null;
+    		return indexModule.searchetricsIdLikeAliasByTypeAndPath(pathResIds, alias, PurviewType.REF, pageIndex, pageSize);
     	}
     }    
     
     /**
 	 * 根据指标id获取影响性的模型列表数据
-	 * @param resId     资源id
+	 * @param resId     模型的资源id
 	 * @param pageIndex 页码
 	 * @param pageSize 每页大小
 	 * @return result 

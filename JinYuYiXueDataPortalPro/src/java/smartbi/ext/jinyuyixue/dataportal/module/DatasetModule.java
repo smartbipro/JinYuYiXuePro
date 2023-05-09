@@ -19,10 +19,7 @@ import smartbi.metadata.MetadataModule;
 import smartbi.metadata.assist.CategoryResource;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
-import smartbi.user.IDepartment;
 import smartbi.usermanager.UserManagerModule;
-import smartbix.metricsmodel.metrics.service.MetricsBO;
-import smartbix.smartbi.metricsmodel.MetricsModelForVModule;
 /**
  * 数据集模块实现类
  */
@@ -63,34 +60,42 @@ public class DatasetModule {
      * @return
      */
     public JSONObject getDataModelByIndexResId(String resId, int pageIndex, int pageSize) {
-    	JSONObject result = new JSONObject();
     	try {
-    		CategoryResource categoryResource = new CategoryResource(); 
-    		categoryResource.setId(resId);
-    		List<String> filters = new ArrayList<String>();
-    		filters.add("AUGMENTED_DATASET");//数据模型
-    		filters.add("METRICS_MODEL");//指标模型
+    		boolean isOnCache = CacheDataUtil.isOnCache();
+    		//缓存数据
+    		Map<String, JSONObject> cacheDSData = CacheDataUtil.cacheDSData;
+    		//是否有创建报表的权限
+        	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();    		
+    		if(cacheDSData != null && isOnCache) {
+    			JSONObject cacheDataModelRec = cacheDSData.get(resId);
+        		if(cacheDataModelRec != null) {
+        			cacheDataModelRec = CommonUtils.addOpAuthorized(cacheDataModelRec, opAuthorized);    			
+        			cacheDSData.put(resId, cacheDataModelRec);
+        			JSONArray data = new JSONArray();  
+        			data.put(cacheDataModelRec);
+        			return CommonUtils.getSuccessData(data, pageIndex, pageSize);
+        		}    			
+    		}
     		
-    		filters.add("SMARTBIX_PAGE");//自助仪表盘
-    		filters.add("COMBINED_QUERY");//即席查询	
-    		List<IDocument> list = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);    		
-	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
-	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheDSData, false);
-	    	result.put("data", resultList);
-	    	result.put("success", true);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);
-	    	result.put("count", resultList.length());
+    		CatalogElement element = catalogTreeModule.getCatalogElementById(resId);
+    		JSONArray data = new JSONArray();
+    		JSONObject map = CommonUtils.createJsonByElement(element);
+    		//添加指标路径
+    		map = CommonUtils.addIndexPath(map, element);
+    		//添加授权
+    		map = CommonUtils.addIsAuthorized(map, element);
+    		//是否有创建即席查询、自助仪表盘权限
+    		map = CommonUtils.addOpAuthorized(map, opAuthorized);
+    		//加载如返回列表中    		
+    		data.put(map);    		
+    		if(cacheDSData != null && isOnCache) {
+    			cacheDSData.put(resId, map);
+    		}
+	    	return CommonUtils.getSuccessData(data, pageIndex, pageSize);
     	}catch(Exception e) {
-    		LOG.error("模糊查询报表错误：" + e.getMessage(),e);
-	    	result.put("data", new JSONArray());
-	    	result.put("success", false);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);  
-	    	result.put("count", 0);
-    		result.put("error", e.getMessage());
+    		LOG.error("getDataModelByIndexResId错误：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "getDataModelByIndexResId错误：" + e.getMessage());
     	}
-    	return result;
     }  
     
     
@@ -106,32 +111,40 @@ public class DatasetModule {
      */
     public JSONObject searchIndexModelDataLikeAlias(List<String> types, String alias,
 			String purview, int pageIndex, int pageSize) {
-    	JSONObject result = new JSONObject();
     	try {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
 	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheDSData);
-	    	result.put("data", resultList);
-	    	result.put("success", true);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);
-	    	result.put("count", resultList.length());
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
     	}catch(Exception e) {
-    		LOG.error("模糊查询报表错误：" + e.getMessage(),e);
-	    	result.put("data", new JSONArray());
-	    	result.put("success", false);
-	    	result.put("pageIndex", pageIndex);
-	    	result.put("pageSize", pageSize);  
-	    	result.put("count", 0);
-    		result.put("error", e.getMessage());
+    		LOG.error("searchIndexModelDataLikeAlias错误：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "searchIndexModelDataLikeAlias错误：" + e.getMessage());
     	}
-    	return result;    	
+    }
+    
+    
+    /**
+     * 返回正确的数据集内容
+     * @param data       数据列表
+     * @param pageIndex  页码
+     * @param pageSize   每页大小
+     * @return
+     */
+    private JSONObject getSuccessData(JSONArray data,int pageIndex, int pageSize) {
+    	JSONObject result = new JSONObject();
+    	result.put("data", data);
+    	result.put("success", true);
+    	result.put("pageIndex", pageIndex);
+    	result.put("pageSize", pageSize);
+    	result.put("count", data.length());  
+    	return result;
     }
     
     /////////////////////数据集组合//////////////////////////
     /**
      * 重置数据集资源列表数据
-     * @param list
+     * @param list 中间的列表对象
+     * @param cacheDSData 数据模型缓存对象
      * @return
      */
     public JSONArray reSetIndexDataList(List<ICatalogSearchResult> list, Map<String, JSONObject> cacheDSData){
@@ -144,9 +157,9 @@ public class DatasetModule {
     		String resId = element.getId();
     		JSONObject cacheIndexRec = cacheDSData.get(resId);
     		if(cacheIndexRec != null && isOnCache) {
-    			cacheDSData.put(resId, cacheIndexRec);
     			//是否有创建即席查询、自助仪表盘权限
-    			cacheIndexRec = CommonUtils.addOpAuthorized(cacheIndexRec, opAuthorized);    			
+    			cacheIndexRec = CommonUtils.addOpAuthorized(cacheIndexRec, opAuthorized);  
+    			cacheDSData.put(resId, cacheIndexRec);
     			result.put(cacheIndexRec);
     			continue;
     		}
@@ -166,5 +179,6 @@ public class DatasetModule {
     	}
     	return result;
     }      
-
+    
+    
 }

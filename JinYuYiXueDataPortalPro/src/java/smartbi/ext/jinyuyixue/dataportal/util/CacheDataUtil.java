@@ -62,7 +62,7 @@ public class CacheDataUtil {
     }
 
     /**
-     * 是否启动缓存
+     * 是否启动缓存  可通过系统选项加个开关设置是否启动缓存
      * @return
      */
     public static boolean isOnCache() {
