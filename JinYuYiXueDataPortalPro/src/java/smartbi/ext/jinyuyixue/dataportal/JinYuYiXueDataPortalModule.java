@@ -16,6 +16,7 @@ import smartbi.ext.jinyuyixue.dataportal.module.IndexModule;
 import smartbi.ext.jinyuyixue.dataportal.module.ReportModule;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickData;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickDataDetail;
+import smartbi.ext.jinyuyixue.dataportal.repository.ReportDetail;
 import smartbi.ext.jinyuyixue.dataportal.util.CacheDataUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.CommonUtils;
 import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil;
@@ -80,6 +81,7 @@ public class JinYuYiXueDataPortalModule implements IModule {
         LOG.info("JinYuYiXueDataPortalModule is running");
         daoModule.addPOJOClass(IndexClickData.class);
         daoModule.addPOJOClass(IndexClickDataDetail.class);
+        daoModule.addPOJOClass(ReportDetail.class);
     }
     
     /**
@@ -394,4 +396,41 @@ public class JinYuYiXueDataPortalModule implements IModule {
     	return SystemConfigService.getInstance().getValue(key);    	
     }
     
+	/**
+	 * 重命名报表
+	 * 
+	 * @param resId
+	 *            需要重命名的资源id 此处指新的资源别称
+	 */
+	public JSONObject renamePortalResource(String resId, String alias) {
+		return CommonUtils.renamePortalResource(resId, alias);		
+	}
+    
+	/**
+	 * 将资源移动到某个目录下	
+	 * @param resId   资源id
+	 * @param toDirResId   目录资源id
+	 * @return
+	 */
+	public JSONObject moveCatalogElement(String resId, String toDirResId) {
+		return CommonUtils.moveCatalogElement(resId, toDirResId);
+	}
+	
+	/**
+	 * 根据资源id获取该资源的root根目录的目录数据
+	 * @param resId 资源id
+	 * @return
+	 */
+	public JSONObject getDefaultDirByResId(String resId) {
+		return CommonUtils.getDefaultDirByResId(resId);
+	}
+	
+	/**
+	 * 根据目录接待获取下级目录节点
+	 * @param dirId 目录资源id
+	 * @return
+	 */
+	public JSONObject getChildDirByDirId(String dirId) {
+		return CommonUtils.getChildDirByDirId(dirId);
+	}
 }

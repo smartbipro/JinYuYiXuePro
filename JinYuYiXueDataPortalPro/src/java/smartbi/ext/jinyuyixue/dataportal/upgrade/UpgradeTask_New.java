@@ -43,6 +43,6 @@ public class UpgradeTask_New extends AbstractUpgradeTask {
     }
 
     public String getDate() {
-        return "2023-22-24 00:00:00";
+        return "2023-12-24 00:00:00";
     }
 }

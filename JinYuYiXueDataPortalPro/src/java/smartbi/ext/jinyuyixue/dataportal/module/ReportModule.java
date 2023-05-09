@@ -170,7 +170,6 @@ public class ReportModule {
     		JSONArray result = new JSONArray();
     		Insight insight = InsightDAOFactory.getInsightDAO().load(resId);
 			String content= insight.getContent();
-			System.out.println(content);
 			Document doc = XmlUtility.parse(content);
 			Element root = (Element) doc.getFirstChild();
 			NodeList bizViewDefineList = root.getElementsByTagName("client-config");

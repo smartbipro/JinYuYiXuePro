@@ -8,9 +8,9 @@ import smartbi.repository.AbstractUpgradeTask;
 import java.sql.Connection;
 
 /**
- * 指标点击查询埋点主表
+ * 报表详情表
  */
-public class UpgradeTask_0_0_1 extends AbstractUpgradeTask {
+public class UpgradeTask_0_0_2 extends AbstractUpgradeTask {
 	/**
 	 * 日志对象
 	 */
@@ -19,18 +19,18 @@ public class UpgradeTask_0_0_1 extends AbstractUpgradeTask {
     public boolean doUpgrade(Connection conn, DBType dbType) {
         try {
             // 表名
-            String tableName = "t_ext_index_click_detail";
+            String tableName = "t_ext_report_detail";
             // 判断表是否存在
             if (this.isTableExists(tableName)) {
                 LOG.info(tableName + "表已经存在！");
                 return true;
             }
             this.createTable(tableName,
-					new String[] {"c_id", "c_index_id", "c_user_id", "c_type", "c_datetime"},
-					new ValueType[] {ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME},
-					new boolean[] {false, false, true, true, true}, 
-					new String[] {"c_id"},
-					new int[] { 255, 255, 255, 255, 0});            
+					new String[] {"c_reportid", "c_reportalias", "c_reportdesc", "c_createuserid", "c_updateuserid", "c_imagepath", "c_createtime", "c_updatetime"},
+					new ValueType[] {ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.DATETIME},
+					new boolean[] {false, true, true, true, true, true, true, true}, 
+					new String[] {"c_reportid"},
+					new int[] { 255, 255, 255, 255, 255, 255, 0, 0});            
             return true;
         } catch (Exception e) {
             LOG.error("Upgrade UpgradeTask_New '" + this.getClass().getPackage().getName() + "' to " + getNewVersion() + " fail.", e);
@@ -39,10 +39,10 @@ public class UpgradeTask_0_0_1 extends AbstractUpgradeTask {
     }
 
     public String getNewVersion() {
-        return "0.0.2";
+        return "0.0.3";
     }
 
     public String getDate() {
-        return "2023-12-25 00:00:00";
+        return "2023-12-26 00:00:00";
     }
 }
