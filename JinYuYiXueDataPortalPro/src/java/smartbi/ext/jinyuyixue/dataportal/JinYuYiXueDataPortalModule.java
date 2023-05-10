@@ -6,13 +6,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import smartbi.catalogtree.CatalogElement;
 import smartbi.catalogtree.PurviewType;
 import smartbi.config.SystemConfigService;
 import smartbi.ext.jinyuyixue.dataportal.module.DatasetModule;
 import smartbi.ext.jinyuyixue.dataportal.module.IndexHomePageModule;
 import smartbi.ext.jinyuyixue.dataportal.module.IndexModule;
+import smartbi.ext.jinyuyixue.dataportal.module.MemuModule;
 import smartbi.ext.jinyuyixue.dataportal.module.ReportModule;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickData;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickDataDetail;
@@ -54,6 +53,11 @@ public class JinYuYiXueDataPortalModule implements IModule {
      * 报表模块相关实现
      */
     private ReportModule reportModule = ReportModule.getInstance();
+    
+    /**
+     * 菜单功能模块实现
+     */
+    private MemuModule memuModule = MemuModule.getInstance();
     
     /**
      * dao对象
@@ -403,7 +407,7 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	 *            需要重命名的资源id 此处指新的资源别称
 	 */
 	public JSONObject renamePortalResource(String resId, String alias) {
-		return CommonUtils.renamePortalResource(resId, alias);		
+		return memuModule.renamePortalResource(resId, alias);		
 	}
     
 	/**
@@ -413,7 +417,7 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	 * @return
 	 */
 	public JSONObject moveCatalogElement(String resId, String toDirResId) {
-		return CommonUtils.moveCatalogElement(resId, toDirResId);
+		return memuModule.moveCatalogElement(resId, toDirResId);
 	}
 	
 	/**
@@ -422,7 +426,7 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	 * @return
 	 */
 	public JSONObject getDefaultDirByResId(String resId) {
-		return CommonUtils.getDefaultDirByResId(resId);
+		return memuModule.getDefaultDirByResId(resId);
 	}
 	
 	/**
@@ -431,6 +435,6 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	 * @return
 	 */
 	public JSONObject getChildDirByDirId(String dirId) {
-		return CommonUtils.getChildDirByDirId(dirId);
+		return memuModule.getChildDirByDirId(dirId);
 	}
 }

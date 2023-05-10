@@ -115,8 +115,9 @@ public class IndexHomePageModule {
     		if(reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY) ||
     				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.Dashboard) ||
     				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.DEFAULT_TREENODE) ||
-    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.SELF_TREENODE)) {
-    			JSONObject map = CommonUtils.createJsonByElement(element);
+    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.SELF_TREENODE) ||
+    				reportType.equals(ConfigUtil.RESTREE_REPORT_TYPE.SMARTBIX_PAGE)) {
+    			JSONObject map = CommonUtils.createJsonByElement(element);    			
     			map = CommonUtils.addDefaultDepartment(map, element);
     			result.put(map);
     		}

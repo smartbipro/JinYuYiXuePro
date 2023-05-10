@@ -25,7 +25,7 @@ import smartbi.util.JSONFields;
 		@NamedQuery(name = "IndexClickDataDetail.getIndexClickDataDetailByIndexId", query = "from IndexClickDataDetail ri where ri.indexId = ?"),
 		@NamedQuery(name = "IndexClickDataDetail.getIndexClickDataDetailByUserId", query = "from IndexClickDataDetail ri where ri.userId = ?")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "POJO")
-@JSONFields(fields = { "c_id", "c_index_id", "c_user_id", "c_type", "c_datetime"})
+@JSONFields(fields = { "id", "indexId", "userId", "type", "createDateTime"})
 public class IndexClickDataDetail implements Serializable {
 
 	private static final long serialVersionUID = 1L;

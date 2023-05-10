@@ -29,6 +29,7 @@ import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.INDEX_CLICK_DATA_TYPE;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
+import smartbix.augmenteddataset.util.StringUtil;
 import smartbix.metricsmodel.common.search.ConditionRelation;
 import smartbix.metricsmodel.common.search.MTPOFieldNameEnum;
 import smartbix.metricsmodel.dimension.service.DimensionBO;
@@ -144,6 +145,9 @@ public class IndexModule {
     	try {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
 	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
+	    	if(tmpPageList == null) {
+	    		return CommonUtils.getSuccessData(new JSONArray() , pageIndex, pageSize);
+	    	}
 	    	List<ICatalogElement> pageList = changeToCatalogElementList(tmpPageList);
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheIndexData);	    	
 	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
@@ -286,7 +290,11 @@ public class IndexModule {
     	String configStr = SystemConfigService.getInstance().getLongValue("JYYX_INDEX_EXTENDS_CONFIG");
     	//设置提出部门、数据更新字段默认值为空
     	json.put("proposedDept", "");
-    	json.put("dataUpdateDate", "");    	
+    	json.put("dataUpdateDate", "");
+    	//系统选项没有配置时，直接返回空值
+    	if(StringUtil.isNullOrEmpty(configStr)) {
+    		return json;
+    	}
     	JSONObject config = JSONObject.fromString(configStr);
 		//指标扩展信息
 		JSONObject extendedConfig = new JSONObject();

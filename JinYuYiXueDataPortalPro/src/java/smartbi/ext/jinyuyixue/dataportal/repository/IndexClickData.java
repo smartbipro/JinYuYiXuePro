@@ -23,7 +23,7 @@ import smartbi.util.JSONFields;
 @NamedQueries({
 		@NamedQuery(name = "IndexClickData.getIndexClickDataById", query = "from IndexClickData ri where ri.indexId = ?")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "POJO")
-@JSONFields(fields = { "c_index_id", "c_index_name", "c_click_num", "c_search_num", "c_datetime","c_updatetime"})
+@JSONFields(fields = { "indexId", "indexName", "clickNum", "searchNum", "createDateTime","updateDateTime"})
 public class IndexClickData implements Serializable {
 
 	private static final long serialVersionUID = 1L;

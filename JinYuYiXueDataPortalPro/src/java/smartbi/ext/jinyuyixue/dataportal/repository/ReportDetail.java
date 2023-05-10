@@ -23,7 +23,7 @@ import smartbi.util.JSONFields;
 @NamedQueries({
 		@NamedQuery(name = "ReportDetail.getReportDetailById", query = "from ReportDetail ri where ri.reportId = ?")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "POJO")
-@JSONFields(fields = { "c_reportid", "c_reportalias", "c_reportdesc", "c_createuserid", "c_updateuserid", "c_imagepath", "c_createtime", "c_updatetime"})
+@JSONFields(fields = { "reportId", "reportAlias", "reportDesc", "createUserId", "updateUserId", "imagePath", "imageName", "createDateTime", "updateDateTime"})
 public class ReportDetail implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -58,7 +58,11 @@ public class ReportDetail implements Serializable {
 	 */
     @Column(name = "c_imagepath")
 	private String imagePath;   
-    
+    /**
+	 * 缩略图名称
+	 */
+    @Column(name = "c_imagename")
+	private String imageName;   
 	/**
 	 * 创建时间
 	 */
@@ -73,9 +77,20 @@ public class ReportDetail implements Serializable {
 	public ReportDetail() {
 	}
 	
-
+	/**
+	 * 报表详情析构类
+	 * @param reportId         报表资源id
+	 * @param reportAlias      报表别名
+	 * @param reportDesc       报表详情说明
+	 * @param createUserId     创建人用户id
+	 * @param updateUserId     更新热用户id 
+	 * @param imagePath        缩略图路径
+	 * @param imageName        缩略图名称
+	 * @param createDateTime   创建记录的时间
+	 * @param updateDateTime   更新记录的时间
+	 */
 	public ReportDetail(String reportId, String reportAlias, String reportDesc, String createUserId,
-			String updateUserId, String imagePath, Date createDateTime, Date updateDateTime) {
+			String updateUserId, String imagePath, String imageName, Date createDateTime, Date updateDateTime) {
 		super();
 		this.reportId = reportId;
 		this.reportAlias = reportAlias;
@@ -83,9 +98,12 @@ public class ReportDetail implements Serializable {
 		this.createUserId = createUserId;
 		this.updateUserId = updateUserId;
 		this.imagePath = imagePath;
+		this.imageName = imageName;
 		this.createDateTime = createDateTime;
 		this.updateDateTime = updateDateTime;
 	}
+
+
 
 	public String getReportId() {
 		return reportId;
@@ -135,6 +153,14 @@ public class ReportDetail implements Serializable {
 		this.imagePath = imagePath;
 	}
 
+	public String getImageName() {
+		return imageName;
+	}
+
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
+
 	public Date getCreateDateTime() {
 		return createDateTime;
 	}
@@ -150,5 +176,4 @@ public class ReportDetail implements Serializable {
 	public void setUpdateDateTime(Date updateDateTime) {
 		this.updateDateTime = updateDateTime;
 	}
-
 }
