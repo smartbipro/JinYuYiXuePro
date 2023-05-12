@@ -118,6 +118,32 @@ public class MemuModule {
 		JSONObject result = new JSONObject();
 		try {
 			result.put("success", true);
+			CatalogElement srcElement = catalogTreeModule.getCatalogElementById(resId);
+			if(srcElement == null) {
+				result.put("success", false);
+				result.put("errorMsg", "资源id：[" + resId + "]不存在!");
+				return result;
+			}
+			CatalogElement dstElement = catalogTreeModule.getCatalogElementById(resId);
+			if(dstElement == null) {
+				result.put("success", false);
+				result.put("errorMsg", "目标目录资源id：[" + toDirResId + "]不存在!");
+				return result;
+			}
+			if((!dstElement.getType().equals("DEFAULT_TREENODE")) || (!dstElement.getType().equals("SELF_TREENODE"))) {
+				result.put("success", false);
+				result.put("errorMsg", "目标资源非目录，不允许移动到该资源下，id：[" + toDirResId + "]!");
+				return result;
+			}
+			
+			ResourceTreeNode node = (ResourceTreeNode) ResourceTreeNodeDAO.getInstance().load(toDirResId);
+
+			// 先检测同级目录下是否存在同名资源
+			JSONObject checkData = checkNodeAlias(node, srcElement.getAlias());
+			if(!checkData.optBoolean("success", true)) {
+				return checkData;
+			}			
+			
 			catalogTreeModule.moveCatalogElement(resId, toDirResId);
 		} catch(Exception e) {
 			result.put("success", false);

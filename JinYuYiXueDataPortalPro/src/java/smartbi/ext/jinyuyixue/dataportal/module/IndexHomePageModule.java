@@ -164,13 +164,17 @@ public class IndexHomePageModule {
      * @param resId 资源id
      * @return
      */
-    public boolean deleteTreeNodeByResId(String resId) {
+    public JSONObject deleteTreeNodeByResId(String resId) {
+    	JSONObject result = new JSONObject();
     	try {
+			result.put("success", true);			
     		catalogTreeModule.deleteCatalogElement(resId);
-    		return true;
+    		return result;
     	}catch(Exception e) {
-    		LOG.info("删除节点失败.");
-    		return false;
+    		LOG.error(e.getMessage(), e);
+    		result.put("success", false);
+    		result.put("errorMsg", "删除节点失败：" + e.getMessage());
+    		return result;
     	}
     }
     

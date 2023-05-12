@@ -142,7 +142,7 @@ public class JinYuYiXueDataPortalModule implements IModule {
      * @param resId 资源id
      * @return
      */
-    public boolean deleteTreeNodeByResId(String resId) {
+    public JSONObject deleteTreeNodeByResId(String resId) {
     	return indexHomePageModule.deleteTreeNodeByResId(resId);
     }
     
@@ -323,8 +323,8 @@ public class JinYuYiXueDataPortalModule implements IModule {
      */    
     public JSONObject searchReportDataLikeAlias(String alias, int pageIndex, int pageSize, String reportType) {
     	List<String> types = new ArrayList<String>();
-    	types.add("SMARTBIX_PAGE");//自助仪表盘
-    	types.add("COMBINED_QUERY");//即席查询    	
+    	types.add(ConfigUtil.RESTREE_REPORT_TYPE.SMARTBIX_PAGE);//自助仪表盘
+    	types.add(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY);//即席查询    	
     	return reportModule.searchReportDataLikeAlias(types, alias, reportType, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
     }
     

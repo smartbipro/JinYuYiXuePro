@@ -1,20 +1,14 @@
 package smartbi.ext.jinyuyixue.dataportal.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import smartbi.SmartbiException;
 import smartbi.catalogtree.CatalogElement;
-import smartbi.catalogtree.CatalogTreeErrorCode;
 import smartbi.catalogtree.CatalogTreeModule;
 import smartbi.catalogtree.ICatalogSearchResult;
-import smartbi.catalogtree.ResourceTreeNode;
-import smartbi.catalogtree.ResourceTreeNodeDAO;
 import smartbi.ext.jinyuyixue.dataportal.repository.IndexClickDataDAO;
 import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.FUNCTION_DATA;
 import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.REPORT_TYPE;
@@ -26,7 +20,6 @@ import smartbi.sdk.ClientConnector;
 import smartbi.sdk.ClientConnectorFactory;
 import smartbi.user.IDepartment;
 import smartbi.usermanager.UserManagerModule;
-import smartbi.util.StringUtil;
 /**
  * 工具类
  */
