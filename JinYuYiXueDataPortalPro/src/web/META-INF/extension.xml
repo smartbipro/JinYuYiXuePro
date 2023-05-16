@@ -2,5 +2,12 @@
 <!DOCTYPE extension SYSTEM "extension.dtd">
 <extension name="JinYuYiXueDataPortalPro" alias="数据门户扩展包" desc="数据门户扩展包" priority="100" version="1.0" depends="Insight">
 <enable-jsp-processor>1</enable-jsp-processor>
-
+	<servlet>
+		<servlet-name>UpLoadReportDetailImageServlet</servlet-name>
+		<servlet-class>smartbi.ext.jinyuyixue.dataportal.servlet.UpLoadReportDetailImageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UpLoadReportDetailImageServlet</servlet-name>
+		<url-pattern>/vision/UpLoadReportDetailImageServlet</url-pattern>
+	</servlet-mapping>
 </extension>

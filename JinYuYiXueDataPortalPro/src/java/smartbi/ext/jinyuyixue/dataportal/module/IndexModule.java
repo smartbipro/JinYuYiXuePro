@@ -146,11 +146,11 @@ public class IndexModule {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
 	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	if(tmpPageList == null) {
-	    		return CommonUtils.getSuccessData(new JSONArray() , pageIndex, pageSize);
+	    		return CommonUtils.getSuccessData(new JSONArray() , pageIndex, pageSize, list.size());
 	    	}
 	    	List<ICatalogElement> pageList = changeToCatalogElementList(tmpPageList);
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheIndexData);	    	
-	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
     		LOG.error("searchetricsIdLikeAliasByType指标模糊查询错误(非业务域)：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "searchetricsIdLikeAliasByType错误：" + e.getMessage());
@@ -202,7 +202,7 @@ public class IndexModule {
 	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	List<ICatalogElement> pageList = changeToCatalogElementList(tmpPageList);
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheIndexData);
-	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
     		LOG.error("searchetricsIdLikeAliasByTypeAndPath指标模糊查询错误(业务域)：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "searchetricsIdLikeAliasByTypeAndPath错误：" + e.getMessage());

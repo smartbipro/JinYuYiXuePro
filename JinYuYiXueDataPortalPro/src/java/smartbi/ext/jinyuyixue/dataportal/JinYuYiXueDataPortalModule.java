@@ -23,6 +23,7 @@ import smartbi.framework.IModule;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.repository.IDAOModule;
+import smartbi.util.HttpUtil;
 import smartbix.augmenteddataset.util.StringUtil;
 
 /**
@@ -369,6 +370,11 @@ public class JinYuYiXueDataPortalModule implements IModule {
      */
     public JSONArray getIndexYwyConfig() {
     	String indexYwyConfig = getSystemConfigLongValue("JYYX_INDEX_YWY_CONFIG");
+    	if(StringUtil.isNullOrEmpty(indexYwyConfig)) {
+    		JSONArray result = new JSONArray();
+    		result.put(new JSONObject());
+    		return result;
+    	}
     	return JSONArray.fromString(indexYwyConfig);
     }
     
@@ -437,4 +443,29 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	public JSONObject getChildDirByDirId(String dirId) {
 		return memuModule.getChildDirByDirId(dirId);
 	}
+	
+    /**
+     * 保存报表详情
+     * @param resId  报表资源id
+     */
+    public void saveReportDetail(String resId) {
+    	reportModule.saveReportDetail(resId);
+    }
+    
+    /**
+     * 根据报表资源id获取报表的详情缩略图数据
+     * @param resId 报表资源id
+     * @return
+     */
+    public JSONObject getReportDetail(String resId) {
+    	return reportModule.getReportDetail(resId);
+    }
+    
+    /**
+     * 获取当前用户的基础信息
+     * @return
+     */
+    public JSONObject getCurrentUserMsg() {
+    	return CommonUtils.getCurrentUserMsg();
+    }
 }

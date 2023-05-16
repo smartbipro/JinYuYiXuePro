@@ -23,7 +23,7 @@ import smartbi.util.JSONFields;
 @NamedQueries({
 		@NamedQuery(name = "ReportDetail.getReportDetailById", query = "from ReportDetail ri where ri.reportId = ?")})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "POJO")
-@JSONFields(fields = { "reportId", "reportAlias", "reportType", "reportDesc", "createUserId", "updateUserId", "imagePath", "imageName", "tmpImagePath", "tmpImageName", "createDateTime", "updateDateTime", "remark"})
+@JSONFields(fields = { "reportId", "reportAlias", "reportType", "reportDesc", "status", "createUserId", "updateUserId", "imagePath", "imageName", "tmpImagePath", "tmpImageName", "createDateTime", "updateDateTime", "remark"})
 public class ReportDetail implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -48,6 +48,11 @@ public class ReportDetail implements Serializable {
 	 */
     @Column(name = "c_reportdesc")
 	private String reportDesc;
+    /**
+     * 状态 1-可用状态，0-变更状态
+     */
+    @Column(name = "c_status")
+    private String status;
 	/**
 	 * 创建人id
 	 */
@@ -108,6 +113,7 @@ public class ReportDetail implements Serializable {
 	 * @param reportAlias      报表别名
 	 * @param reportType       文件类型
 	 * @param reportDesc       报表详情说明
+	 * @param status           状态 1-完成状态 0-编辑状态
 	 * @param createUserId     创建人用户id
 	 * @param updateUserId     更新热用户id 
 	 * @param imagePath        缩略图路径
@@ -118,7 +124,7 @@ public class ReportDetail implements Serializable {
 	 * @param updateDateTime   更新记录的时间
 	 * @param remark           备注
 	 */
-	public ReportDetail(String reportId, String reportAlias, String reportType, String reportDesc, String createUserId,
+	public ReportDetail(String reportId, String reportAlias, String reportType, String reportDesc, String status, String createUserId,
 			String updateUserId, String imagePath, String imageName, String tmpImagePath, String tmpImageName,
 			Date createDateTime, Date updateDateTime, String remark) {
 		super();
@@ -126,6 +132,7 @@ public class ReportDetail implements Serializable {
 		this.reportAlias = reportAlias;
 		this.reportType = reportType;
 		this.reportDesc = reportDesc;
+		this.status = status;
 		this.createUserId = createUserId;
 		this.updateUserId = updateUserId;
 		this.imagePath = imagePath;
@@ -152,20 +159,25 @@ public class ReportDetail implements Serializable {
 	public void setReportAlias(String reportAlias) {
 		this.reportAlias = reportAlias;
 	}
-	
 
 	public String getReportType() {
 		return reportType;
 	}
 
-
 	public void setReportType(String reportType) {
 		this.reportType = reportType;
 	}
 
-
 	public String getReportDesc() {
 		return reportDesc;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public void setReportDesc(String reportDesc) {
@@ -235,7 +247,6 @@ public class ReportDetail implements Serializable {
 	public void setUpdateDateTime(Date updateDateTime) {
 		this.updateDateTime = updateDateTime;
 	}
-
 
 	public String getRemark() {
 		return remark;

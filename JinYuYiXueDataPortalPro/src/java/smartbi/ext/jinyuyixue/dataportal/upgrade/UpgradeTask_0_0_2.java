@@ -26,11 +26,11 @@ public class UpgradeTask_0_0_2 extends AbstractUpgradeTask {
                 return true;
             }
             this.createTable(tableName,
-					new String[] {"c_reportid", "c_reportalias", "c_reporttype", "c_reportdesc", "c_createuserid", "c_updateuserid", "c_imagepath", "c_imagename", "c_tmpimagepath", "t_tmpimagename", "c_createtime", "c_updatetime", "c_remark"},
-					new ValueType[] {ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.DATETIME, ValueType.STRING},
-					new boolean[] {false, true, true, true, true, true, true, true, true, true, true, true, true}, 
+					new String[] {"c_reportid", "c_reportalias", "c_reporttype", "c_reportdesc", "c_status", "c_createuserid", "c_updateuserid", "c_imagepath", "c_imagename", "c_tmpimagepath", "t_tmpimagename", "c_createtime", "c_updatetime", "c_remark"},
+					new ValueType[] {ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.STRING, ValueType.DATETIME, ValueType.DATETIME, ValueType.STRING},
+					new boolean[] {false, true, true, true, true, true, true, true, true, true, true, true, true, true}, 
 					new String[] {"c_reportid"},
-					new int[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 255});            
+					new int[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 255});            
             return true;
         } catch (Exception e) {
             LOG.error("Upgrade UpgradeTask_New '" + this.getClass().getPackage().getName() + "' to " + getNewVersion() + " fail.", e);

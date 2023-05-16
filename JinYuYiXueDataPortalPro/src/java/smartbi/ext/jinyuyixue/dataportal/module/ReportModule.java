@@ -1,6 +1,8 @@
 package smartbi.ext.jinyuyixue.dataportal.module;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
@@ -14,6 +16,8 @@ import smartbi.catalogtree.CatalogTreeModule;
 import smartbi.catalogtree.ICatalogSearchResult;
 import smartbi.combinedquery.repository.CombinedQuery;
 import smartbi.combinedquery.repository.CombinedQueryDAOFactory;
+import smartbi.ext.jinyuyixue.dataportal.repository.ReportDetail;
+import smartbi.ext.jinyuyixue.dataportal.repository.ReportDetailDAO;
 import smartbi.ext.jinyuyixue.dataportal.util.CacheDataUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.CommonUtils;
 import smartbi.ext.jinyuyixue.dataportal.util.PageUtil;
@@ -81,11 +85,11 @@ public class ReportModule {
 	    		}
 	    	}
 	    	if(list != null && list.size() == 0) {
-	    		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize);
+	    		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize, list.size());
 	    	}	    	
 	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByCatalog(pageList, CacheDataUtil.cacheReportData, true);
-	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
     		LOG.error("searchReportDataLikeAlias错误：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "searchReportDataLikeAlias错误：" + e.getMessage());
@@ -153,7 +157,7 @@ public class ReportModule {
     		List<IDocument> list = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);    		
 	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
-	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
     		LOG.error("getReportByIndexResId错误：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "getReportByIndexResId错误：" + e.getMessage());
@@ -267,5 +271,51 @@ public class ReportModule {
     		LOG.error("获取即系查询表头有误，resid:" + resId + "," + e.getMessage(), e);
     	}
     	return null;
+    }
+    
+    /**
+     * 保存报表详情
+     * @param resId  报表资源id
+     */
+    public void saveReportDetail(String resId) {
+    	ReportDetail detail = ReportDetailDAO.getInstance().load(resId);
+    	if(detail != null) {
+    		CatalogElement element = catalogTreeModule.getCatalogElementById(resId);
+    		if(element != null) {
+    			detail.setReportDesc(element.getDesc());
+    		}
+    		detail.setImagePath(detail.getTmpImagePath());
+			detail.setImageName(detail.getTmpImageName());
+			detail.setUpdateUserId(userManagerModule.getCurrentUser().getId());
+			detail.setUpdateDateTime(new Date());
+			ReportDetailDAO.getInstance().update(detail);
+			if(!StringUtil.isNullOrEmpty(detail.getImagePath()) && !StringUtil.isNullOrEmpty(detail.getImageName())
+					&& !detail.getTmpImageName().equals(detail.getImageName())) {
+				File imageFile = new File(detail.getImagePath() + detail.getImageName());
+				if (imageFile.exists()) {
+					imageFile.delete();
+				}
+			}
+    	}
+    }
+    
+    /**
+     * 根据报表资源id获取报表的详情缩略图数据
+     * @param resId 报表资源id
+     * @return
+     */
+    public JSONObject getReportDetail(String resId) {
+    	ReportDetail detail = ReportDetailDAO.getInstance().load(resId);
+    	if(detail != null) {
+    		JSONObject result = new JSONObject();
+    		result.put("reportId", detail.getReportId());
+    		result.put("reportAlias", detail.getReportAlias());
+    		result.put("reportType", detail.getReportType());
+    		result.put("reportDesc", detail.getReportDesc());
+    		result.put("imagePath", detail.getImagePath() + detail.getImageName());
+    		return result;
+    	} else {
+    		return new JSONObject();
+    	}
     }
 }

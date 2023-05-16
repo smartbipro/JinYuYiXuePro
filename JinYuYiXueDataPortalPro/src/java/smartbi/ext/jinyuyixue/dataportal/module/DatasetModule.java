@@ -70,7 +70,7 @@ public class DatasetModule {
         			cacheDSData.put(resId, cacheDataModelRec);
         			JSONArray data = new JSONArray();  
         			data.put(cacheDataModelRec);
-        			return CommonUtils.getSuccessData(data, pageIndex, pageSize);
+        			return CommonUtils.getSuccessData(data, pageIndex, pageSize, data.length());
         		}    			
     		}
     		
@@ -88,7 +88,7 @@ public class DatasetModule {
     		if(cacheDSData != null && isOnCache) {
     			cacheDSData.put(resId, map);
     		}
-	    	return CommonUtils.getSuccessData(data, pageIndex, pageSize);
+	    	return CommonUtils.getSuccessData(data, pageIndex, pageSize, data.length());
     	}catch(Exception e) {
     		LOG.error("getDataModelByIndexResId错误：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "getDataModelByIndexResId错误：" + e.getMessage());
@@ -112,29 +112,11 @@ public class DatasetModule {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
 	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheDSData);
-	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize);
+	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
     		LOG.error("searchIndexModelDataLikeAlias错误：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "searchIndexModelDataLikeAlias错误：" + e.getMessage());
     	}
-    }
-    
-    
-    /**
-     * 返回正确的数据集内容
-     * @param data       数据列表
-     * @param pageIndex  页码
-     * @param pageSize   每页大小
-     * @return
-     */
-    private JSONObject getSuccessData(JSONArray data,int pageIndex, int pageSize) {
-    	JSONObject result = new JSONObject();
-    	result.put("data", data);
-    	result.put("success", true);
-    	result.put("pageIndex", pageIndex);
-    	result.put("pageSize", pageSize);
-    	result.put("count", data.length());  
-    	return result;
     }
     
     /////////////////////数据集组合//////////////////////////

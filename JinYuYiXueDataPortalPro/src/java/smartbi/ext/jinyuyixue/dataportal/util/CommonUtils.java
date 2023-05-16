@@ -2,6 +2,7 @@ package smartbi.ext.jinyuyixue.dataportal.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import smartbi.scheduletask.ScheduleTaskModule;
 import smartbi.sdk.ClientConnector;
 import smartbi.sdk.ClientConnectorFactory;
 import smartbi.user.IDepartment;
+import smartbi.user.IUser;
 import smartbi.usermanager.UserManagerModule;
 /**
  * 工具类
@@ -251,15 +253,25 @@ public class CommonUtils {
      * @param data       数据列表
      * @param pageIndex  页码
      * @param pageSize   每页大小
+     * @parma totalCount 总行数
      * @return
      */
-    public static JSONObject getSuccessData(JSONArray data,int pageIndex, int pageSize) {
+    public static JSONObject getSuccessData(JSONArray data,int pageIndex, int pageSize, int totalCount) {
     	JSONObject result = new JSONObject();
+    	int totalPages = 0;
+    	if(pageSize != 0) {
+    		totalPages = totalCount / pageSize;
+    		if(totalCount % pageSize != 0) {
+    			totalPages++;
+    		}
+    	}
     	result.put("data", data);
     	result.put("success", true);
     	result.put("pageIndex", pageIndex);
     	result.put("pageSize", pageSize);
     	result.put("count", data.length());  
+    	result.put("totalCount", totalCount);
+    	result.put("totalPages", totalPages);
     	return result;
     }
     
@@ -281,6 +293,21 @@ public class CommonUtils {
 		result.put("error", errmsg);
     	return result;    	
     }    
+
+    /**
+     * 获取当前用户的基础信息
+     * @return
+     */
+    public static JSONObject getCurrentUserMsg() {
+    	JSONObject result = new JSONObject();
+    	IUser user = userManagerModule.getCurrentUser();
+    	result.put("userId", user.getId());
+    	result.put("userName", user.getName());
+    	result.put("userAlias", user.getAlias());
+    	result.put("selfPath", "SELF_" + user.getId());
+    	result.put("uuid", UUID.randomUUID().toString().replaceAll("-", ""));
+    	return result;
+    }
     
     /**
      * 获取ClientConnector
