@@ -30,6 +30,8 @@ import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
 import smartbi.util.XmlUtility;
+import smartbix.metricsmodel.metrics.service.MetricsBO;
+import smartbix.smartbi.metricsmodel.MetricsModelForVModule;
 import smartbix.util.StringUtil;
 /**
  * 报表模块实现类
@@ -146,7 +148,7 @@ public class ReportModule {
      * @return
      */
     public JSONObject getReportByIndexResId(String resId, int pageIndex, int pageSize) {
-    	try {
+    	try {    		
     		CategoryResource categoryResource = new CategoryResource(); 
     		categoryResource.setId(resId);
     		List<String> filters = new ArrayList<String>();
@@ -154,10 +156,13 @@ public class ReportModule {
     		filters.add("COMBINED_QUERY");//即席查询
     		//filters.add("SPREADSHEET_REPORT");//电子表格
     		//filters.add("WEB_SPREADSHEET_REPORT");//WEB电子表格    		
-    		List<IDocument> list = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);    		
-	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
-	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
-	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
+    		List<IDocument> list = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);    
+    		if(list != null && list.size() > 0) {
+    	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
+    	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
+    	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());    			
+    		}
+    		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize, 0); 
     	}catch(Exception e) {
     		LOG.error("getReportByIndexResId错误：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "getReportByIndexResId错误：" + e.getMessage());

@@ -22,6 +22,8 @@ import smartbi.sdk.ClientConnectorFactory;
 import smartbi.user.IDepartment;
 import smartbi.user.IUser;
 import smartbi.usermanager.UserManagerModule;
+import smartbix.augmenteddataset.util.StringUtil;
+import smartbix.metricsmodel.metrics.service.MetricsBO;
 /**
  * 工具类
  */
@@ -324,5 +326,48 @@ public class CommonUtils {
         connector.switchUser(username);
         return connector;
     }    
+    
+    /**
+     * 根据模型对象获取数据模型id
+     * @param metricsBo
+     * @return
+     */
+    public static String getDataModelIdByMetricsBo(MetricsBO metricsBo) {
+    	String dataModelId = null;
+    	if(metricsBo != null) {
+    		dataModelId = metricsBo.getModelId();
+    		List<CatalogElement> modelList = catalogTreeModule.getChildElementsByTypes(dataModelId, new String[] {"MT_DATAMODELS"});
+    		if(modelList != null && modelList.size() > 0) {
+    			CatalogElement element = modelList.get(0);
+    			if(element.getNode() != null && element.getNode().getChildNodes() != null) {
+    				if(element.getNode().getChildNodes().size() > 0) {
+    					dataModelId = element.getNode().getChildNodes().get(0).getId();
+    				}
+    			}
+    		}
+    	}
+    	return dataModelId;
+    }
+    
+    /**
+     * 根据指标模型id获取数据模型id
+     * @param modelId
+     * @return
+     */    
+    public static String getDataModelIdByModelId(String modelId) {
+    	String dataModelId = modelId;
+    	if(!StringUtil.isNullOrEmpty(modelId)) {
+    		List<CatalogElement> modelList = catalogTreeModule.getChildElementsByTypes(modelId, new String[] {"MT_DATAMODELS"});
+    		if(modelList != null && modelList.size() > 0) {
+    			CatalogElement element = modelList.get(0);
+    			if(element.getNode() != null && element.getNode().getChildNodes() != null) {
+    				if(element.getNode().getChildNodes().size() > 0) {
+    					dataModelId = element.getNode().getChildNodes().get(0).getId();
+    				}
+    			}
+    		}
+    	}
+    	return dataModelId;    	
+    }
     
 }

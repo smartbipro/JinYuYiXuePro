@@ -236,7 +236,7 @@ public class IndexModule {
      */
     public JSONArray reSetIndexDataList(List<ICatalogElement> list, Map<String, JSONObject> cacheIndexData){
     	JSONArray result = new JSONArray();
-    	boolean isOnCache = CacheDataUtil.isOnCache();
+    	boolean isOnCache = false;//CacheDataUtil.isOnCache();
     	//是否有创建报表的权限
     	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();
     	for(ICatalogElement item : list) {    		
@@ -335,16 +335,7 @@ public class IndexModule {
     private JSONObject addIndexFieldName(JSONObject json, MetricsBO metricsBO) { 
 		json.put("alias2", json.get("alias") + "(" + metricsBO.getFactTableField().getName() + ")");
 		String modelId = metricsBO.getModelId();
-		String dataModelId = metricsBO.getModelId();
-		List<CatalogElement> modelList = catalogTreeModule.getChildElementsByTypes(metricsBO.getModelId(), new String[] {"MT_DATAMODELS"});// getChildElements(metricsBO.getModelId());
-		if(modelList != null && modelList.size() > 0) {
-			CatalogElement element = modelList.get(0);
-			if(element.getNode() != null && element.getNode().getChildNodes() != null) {
-				if(element.getNode().getChildNodes().size() > 0) {
-					dataModelId = element.getNode().getChildNodes().get(0).getId();
-				}
-			}
-		}
+		String dataModelId = CommonUtils.getDataModelIdByMetricsBo(metricsBO);
 		json.put("modelId", modelId);
 		json.put("dataModelId", dataModelId);
 		json.put("factTableName", metricsBO.getFactTable().getName());
@@ -414,7 +405,8 @@ public class IndexModule {
 		String name = source.optString("name");
 		String alias = source.optString("alias");
 		result.put("name", name);
-		result.put("alias", alias);		
+		result.put("alias", alias);	
+		result.put("value", "");
 		switch(name) {
 			case "code"://指标编码
 				result.put("value", metricsBO.getCode());

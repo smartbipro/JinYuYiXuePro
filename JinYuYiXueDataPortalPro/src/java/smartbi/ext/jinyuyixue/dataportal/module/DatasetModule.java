@@ -17,6 +17,7 @@ import smartbi.ext.jinyuyixue.dataportal.util.PageUtil;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
+import smartbix.metricsmodel.metrics.service.MetricsBO;
 /**
  * 数据集模块实现类
  */
@@ -77,12 +78,16 @@ public class DatasetModule {
     		CatalogElement element = catalogTreeModule.getCatalogElementById(resId);
     		JSONArray data = new JSONArray();
     		JSONObject map = CommonUtils.createJsonByElement(element);
+    		//添加默认部门
+    		map = CommonUtils.addDefaultDepartment(map, element);      		
     		//添加指标路径
     		map = CommonUtils.addIndexPath(map, element);
     		//添加授权
     		map = CommonUtils.addIsAuthorized(map, element);
     		//是否有创建即席查询、自助仪表盘权限
     		map = CommonUtils.addOpAuthorized(map, opAuthorized);
+    		//添加指标模型id和数据模型id
+    		map = addModelData(map, resId);
     		//加载如返回列表中    		
     		data.put(map);    		
     		if(cacheDSData != null && isOnCache) {
@@ -93,7 +98,20 @@ public class DatasetModule {
     		LOG.error("getDataModelByIndexResId错误：" + e.getMessage(),e);
     		return CommonUtils.getFailData(pageIndex, pageSize, "getDataModelByIndexResId错误：" + e.getMessage());
     	}
-    }  
+    } 
+    
+    /**
+     * 增加指标模型id和数据模型id
+     * @param json       目标json对象
+     * @param modelId    指标模型id
+     * @return
+     */
+    private JSONObject addModelData(JSONObject json, String modelId) { 
+		String dataModelId = CommonUtils.getDataModelIdByModelId(modelId);
+		json.put("modelId", modelId);
+		json.put("dataModelId", dataModelId);
+    	return json;
+    }    
     
     
     /**
@@ -149,6 +167,8 @@ public class DatasetModule {
     		map = CommonUtils.addIsAuthorized(map, element);
     		//是否有创建即席查询、自助仪表盘权限
     		map = CommonUtils.addOpAuthorized(map, opAuthorized);
+    		//添加指标模型id和数据模型id
+    		map = addModelData(map, resId);    		
     		//加载如返回列表中    		
     		result.put(map);
     		//将指标数据进行缓存
