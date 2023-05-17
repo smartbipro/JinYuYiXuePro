@@ -334,7 +334,19 @@ public class IndexModule {
      */
     private JSONObject addIndexFieldName(JSONObject json, MetricsBO metricsBO) { 
 		json.put("alias2", json.get("alias") + "(" + metricsBO.getFactTableField().getName() + ")");
-		json.put("modelId", metricsBO.getModelId());
+		String modelId = metricsBO.getModelId();
+		String dataModelId = metricsBO.getModelId();
+		List<CatalogElement> modelList = catalogTreeModule.getChildElementsByTypes(metricsBO.getModelId(), new String[] {"MT_DATAMODELS"});// getChildElements(metricsBO.getModelId());
+		if(modelList != null && modelList.size() > 0) {
+			CatalogElement element = modelList.get(0);
+			if(element.getNode() != null && element.getNode().getChildNodes() != null) {
+				if(element.getNode().getChildNodes().size() > 0) {
+					dataModelId = element.getNode().getChildNodes().get(0).getId();
+				}
+			}
+		}
+		json.put("modelId", modelId);
+		json.put("dataModelId", dataModelId);
 		json.put("factTableName", metricsBO.getFactTable().getName());
     	return json;
     }    
