@@ -274,8 +274,8 @@ public class JinYuYiXueDataPortalModule implements IModule {
      */
     public JSONObject searchIndexModelDataLikeAlias(String alias, int pageIndex, int pageSize) {
     	List<String> types = new ArrayList<String>();
-    	types.add("MT_MODEL");//指标模型
-    	//types.add("AUGMENTED_DATASET");//数据模型
+    	//types.add("MT_MODEL");//指标模型
+    	types.add("AUGMENTED_DATASET");//数据模型
     	return datasetModule.searchIndexModelDataLikeAlias(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
     }    
     
