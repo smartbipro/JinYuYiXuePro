@@ -236,7 +236,7 @@ public class IndexModule {
      */
     public JSONArray reSetIndexDataList(List<ICatalogElement> list, Map<String, JSONObject> cacheIndexData){
     	JSONArray result = new JSONArray();
-    	boolean isOnCache = false;//CacheDataUtil.isOnCache();
+    	boolean isOnCache = CacheDataUtil.isOnCache();
     	//是否有创建报表的权限
     	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();
     	for(ICatalogElement item : list) {    		

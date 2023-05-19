@@ -3,7 +3,9 @@ package smartbi.ext.jinyuyixue.dataportal.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import smartbi.config.SystemConfigService;
 import smartbi.net.sf.json.JSONObject;
+import smartbi.util.StringUtil;
 
 /**
  * 缓存类
@@ -66,7 +68,14 @@ public class CacheDataUtil {
      * @return
      */
     public static boolean isOnCache() {
-    	return true;
+    	String isOn = SystemConfigService.getInstance().getLongValue("JYYX_DATA_CACHE_CONFIG");
+    	if(StringUtil.isNullOrEmpty(isOn)) {
+    		return false;
+    	}
+    	if("true".equals(isOn)) {
+    		return true;
+    	}
+    	return false;
     }
 
 }

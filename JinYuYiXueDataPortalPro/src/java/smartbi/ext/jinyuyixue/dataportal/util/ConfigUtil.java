@@ -116,8 +116,16 @@ public class ConfigUtil {
 		public static final String BUSINESS_VIEW = "BUSINESS_VIEW";
 		//自助数据集
 		public static final String SMARTBIX_DATASET = "SMARTBIX_DATASET";
-		//数据模型
+		//模型
 		public static final String MT_DATAMODELS = "MT_DATAMODELS";
+		//指标模型
+		public static final String MT_MODEL = "MT_MODEL";
+		//数据模型
+		public static final String AUGMENTED_DATASET = "AUGMENTED_DATASET";
+		//原子指标
+		public static final String MT_ATOM_METRICS = "MT_ATOM_METRICS";
+		//计算指标
+		public static final String MT_VIRTUAL_METRICS = "MT_VIRTUAL_METRICS";
 	}	
 	
 	/**

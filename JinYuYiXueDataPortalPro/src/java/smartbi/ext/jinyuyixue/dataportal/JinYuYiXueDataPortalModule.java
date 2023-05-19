@@ -229,8 +229,8 @@ public class JinYuYiXueDataPortalModule implements IModule {
      */    
     public JSONObject searchIndexDataLikeAlias(String alias, int pageIndex, int pageSize, String pathResIds) {
     	List<String> types = new ArrayList<String>();
-    	types.add("MT_ATOM_METRICS");//原子指标
-    	types.add("MT_VIRTUAL_METRICS");//计算指标
+    	types.add(ConfigUtil.RESTREE_DATASET_TYPE.MT_ATOM_METRICS);//原子指标
+    	types.add(ConfigUtil.RESTREE_DATASET_TYPE.MT_VIRTUAL_METRICS);//计算指标
     	if(StringUtil.isNullOrEmpty(pathResIds)) {
     		return indexModule.searchetricsIdLikeAliasByType(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
     	} else {
@@ -274,44 +274,10 @@ public class JinYuYiXueDataPortalModule implements IModule {
      */
     public JSONObject searchIndexModelDataLikeAlias(String alias, int pageIndex, int pageSize) {
     	List<String> types = new ArrayList<String>();
-    	//types.add("MT_MODEL");//指标模型
-    	types.add("AUGMENTED_DATASET");//数据模型
+    	//types.add(ConfigUtil.RESTREE_DATASET_TYPE.MT_MODEL);//指标模型
+    	types.add(ConfigUtil.RESTREE_DATASET_TYPE.AUGMENTED_DATASET);//数据模型
     	return datasetModule.searchIndexModelDataLikeAlias(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
     }    
-    
-    /**
-	 * 公共报表模糊查询 列表分页方式呈现
-	 * @param alias 别名
-	 * @param pageIndex 页码
-	 * @param pageSize 每页大小
-	 * @return result 
-     * @return
-     */    
-//    public JSONObject searchCommonReportLikeAlias(String alias, int pageIndex, int pageSize) {
-//    	List<String> types = new ArrayList<String>();
-//    	types.add("SMARTBIX_PAGE");//自助仪表盘
-//    	types.add("COMBINED_QUERY");//即席查询
-//    	//types.add("SPREADSHEET_REPORT");//电子表格
-//    	//types.add("WEB_SPREADSHEET_REPORT");//WEB电子表格    	    	
-//    	return reportModule.searchCommonReportLikeAliasByType(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);    			
-//    }
-    
-    /**
-	 * 私有报表模糊查询 列表分页方式呈现
-	 * @param alias 别名
-	 * @param pageIndex 页码
-	 * @param pageSize 每页大小
-	 * @return result 
-     * @return
-     */    
-//    public JSONObject searchSelfReportLikeAlias(String alias, int pageIndex, int pageSize) {
-//    	List<String> types = new ArrayList<String>();
-//    	types.add("SMARTBIX_PAGE");//自助仪表盘
-//    	types.add("COMBINED_QUERY");//即席查询
-//    	//types.add("SPREADSHEET_REPORT");//电子表格
-//    	//types.add("WEB_SPREADSHEET_REPORT");//WEB电子表格
-//    	return reportModule.searchSelfReportLikeAlias(types, alias, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);    			
-//    }
     
     /**
 	 * 指标模糊查询 列表分页方式呈现
@@ -329,7 +295,6 @@ public class JinYuYiXueDataPortalModule implements IModule {
     	return reportModule.searchReportDataLikeAlias(types, alias, reportType, ConfigUtil.PURVIEWTYPE.REF, pageIndex, pageSize);
     }
     
-    
     /**
      * 即席查询/透视分析根据报表id获取表头信息
      * @param resId
@@ -337,9 +302,9 @@ public class JinYuYiXueDataPortalModule implements IModule {
      * @return
      */
     public JSONArray getReportMultiHeader(String resId, String type) {
-    	if("COMBINED_QUERY".equals(type)) {
+    	if(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY.equals(type)) {
     		return getCombinedMultiHeader(resId);
-    	} else if("INSIGHT".equals(type)) {
+    	} else if(ConfigUtil.RESTREE_REPORT_TYPE.INSIGHT.equals(type)) {
     		return getInsightMultiHeader(resId);
     	}
     	return null;
@@ -395,7 +360,6 @@ public class JinYuYiXueDataPortalModule implements IModule {
     public String getSystemConfigLongValue(String key) {
     	return SystemConfigService.getInstance().getLongValue(key);    	
     }
-    
     
     /**
      * 获取系统选项字符串
@@ -468,4 +432,23 @@ public class JinYuYiXueDataPortalModule implements IModule {
     public JSONObject getCurrentUserMsg() {
     	return CommonUtils.getCurrentUserMsg();
     }
+    
+    /**
+     * 根据报表id获取报表来源于模型
+     * @param resId 资源id
+     * @return
+     */
+    public JSONObject getReportDataModelByResId(String resId, int pageIndex, int pageSize) {
+    	return reportModule.getReportDataModelByResId(resId, pageIndex, pageSize);
+    }
+    
+    /**
+     * 根据报表资源id获取报表信息
+     * @param resId 资源id
+     * @return
+     */
+    public JSONObject getReportInfoByResId(String resId) {
+    	return reportModule.getReportInfoByResId(resId);
+    }
+    
 }

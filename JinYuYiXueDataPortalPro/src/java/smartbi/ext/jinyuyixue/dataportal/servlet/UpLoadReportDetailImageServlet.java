@@ -326,7 +326,8 @@ public class UpLoadReportDetailImageServlet extends HttpServlet {
 			String imageName = detail.getImageName();
 			String reportId = detail.getReportId();
 			String reportAlias = detail.getReportAlias();
-			if(path.substring(path.length() - 1) != File.separator) {
+			
+			if((!StringUtil.isNullOrEmpty(path)) && (path.substring(path.length() - 1) != File.separator)) {
 				path += File.separator;
 			}
 			//临时请求时
@@ -341,41 +342,6 @@ public class UpLoadReportDetailImageServlet extends HttpServlet {
 			object.put("downFileName", reportAlias + suffix);
 		}
 		return object;
-	}
-	
-	/**
-	 * 保存图片信息
-	 * @param itemList
-	 * @param fileName
-	 * @param imageContent
-	 * @param resId
-	 * @param imgMark
-	 */
-	private String saveImageContent(List<FileItem> itemList,String fileName,String imageContent,String imageId){
-		if(null == imageContent){
-			return "";
-		}
-		UploadImage upImg = null;
-		if(null != imageId && !imageId.equals("")){
-			upImg = UploadImageDAO.getInstance().load(imageId);
-		}
-		boolean isExists = true;
-		if(null == upImg){
-			isExists = false;
-			upImg = new UploadImage();
-			imageId = UUIDGenerator.generate();
-			upImg.setId(imageId);
-		}
-		upImg.setLastModifiedDate(new Date(0));
-		upImg.setContent(imageContent);
-		upImg.setName(fileName);
-		if(isExists){
-			UploadImageDAO.getInstance().update(upImg);
-		}else{
-			upImg.setCreatedDate(new Date(0));
-			UploadImageDAO.getInstance().save(upImg);
-		}
-		return imageId;
 	}
 
 } 

@@ -20,6 +20,7 @@ import smartbi.ext.jinyuyixue.dataportal.repository.ReportDetail;
 import smartbi.ext.jinyuyixue.dataportal.repository.ReportDetailDAO;
 import smartbi.ext.jinyuyixue.dataportal.util.CacheDataUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.CommonUtils;
+import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil;
 import smartbi.ext.jinyuyixue.dataportal.util.PageUtil;
 import smartbi.index.IDocument;
 import smartbi.insight.repository.Insight;
@@ -31,8 +32,13 @@ import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
 import smartbi.util.XmlUtility;
 import smartbix.metricsmodel.metrics.service.MetricsBO;
+import smartbix.modelquery.bean.ModelQueryBean;
+import smartbix.modelquery.bean.ModelQueryField;
+import smartbix.modelquery.dao.ModelQueryDAO;
 import smartbix.smartbi.metricsmodel.MetricsModelForVModule;
+import smartbix.smartbi.modelquery.ModelQueryForVModule;
 import smartbix.util.StringUtil;
+import smartbixlibs.net.sf.ehcache.config.generator.ConfigurationUtil;
 /**
  * 报表模块实现类
  */
@@ -152,10 +158,9 @@ public class ReportModule {
     		CategoryResource categoryResource = new CategoryResource(); 
     		categoryResource.setId(resId);
     		List<String> filters = new ArrayList<String>();
-    		filters.add("SMARTBIX_PAGE");//自助仪表盘
-    		filters.add("COMBINED_QUERY");//即席查询
-    		//filters.add("SPREADSHEET_REPORT");//电子表格
-    		//filters.add("WEB_SPREADSHEET_REPORT");//WEB电子表格    		
+    		filters.add(ConfigUtil.RESTREE_REPORT_TYPE.SMARTBIX_PAGE);//自助仪表盘
+    		filters.add(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY);//即席查询
+    		//影响性分析
     		List<IDocument> list = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);    
     		if(list != null && list.size() > 0) {
     	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
@@ -250,32 +255,43 @@ public class ReportModule {
     	try {
     		JSONArray result = new JSONArray();
 			CombinedQuery combinedQuery = CombinedQueryDAOFactory.getCombinedQueryDAO().load(resId);
-			String content= combinedQuery.getContent();
-			Document doc = XmlUtility.parse(content);
-			Element root = (Element) doc.getFirstChild();
-			NodeList bizViewDefineList = root.getElementsByTagName("bizview-define");
-			Element bizViewDefine = (Element) bizViewDefineList.item(0);
-			Document subDoc = XmlUtility.parse(bizViewDefine.getTextContent());
-			Element subRoot = (Element) subDoc.getFirstChild();
-			NodeList list = subRoot.getChildNodes();
-			for(int i = 0, len = list.getLength(); i < len; i++) {
-				if("workspace".equals(list.item(i).getNodeName())) {
-					NodeList outputFields = list.item(i).getFirstChild().getChildNodes();
-					for(int j = 0, jLen = outputFields.getLength(); j < jLen; j++) {
-						Element element = (Element)outputFields.item(j);
-						JSONObject rec = new JSONObject();
-						rec.put("id", element.getAttribute("id"));
-						rec.put("alias", element.getAttribute("alias"));
-						result.put(rec);
+			if(combinedQuery != null) {//非指标创建的即系查询报表
+				String content= combinedQuery.getContent();
+				Document doc = XmlUtility.parse(content);
+				Element root = (Element) doc.getFirstChild();
+				NodeList bizViewDefineList = root.getElementsByTagName("bizview-define");
+				Element bizViewDefine = (Element) bizViewDefineList.item(0);
+				Document subDoc = XmlUtility.parse(bizViewDefine.getTextContent());
+				Element subRoot = (Element) subDoc.getFirstChild();
+				NodeList list = subRoot.getChildNodes();
+				for(int i = 0, len = list.getLength(); i < len; i++) {
+					if("workspace".equals(list.item(i).getNodeName())) {
+						NodeList outputFields = list.item(i).getFirstChild().getChildNodes();
+						for(int j = 0, jLen = outputFields.getLength(); j < jLen; j++) {
+							Element element = (Element)outputFields.item(j);
+							JSONObject rec = new JSONObject();
+							rec.put("id", element.getAttribute("id"));
+							rec.put("alias", element.getAttribute("alias"));
+							result.put(rec);
+						}
+						break;
 					}
-					break;
+				}
+			} else {//指标创建的即席查询报表
+				ModelQueryBean openModelQuery = ModelQueryForVModule.getInstance().openModelQuery(resId);
+				List<ModelQueryField> list = openModelQuery.getDefine().getFields();
+				for(ModelQueryField field : list) {
+					JSONObject rec = new JSONObject();
+					rec.put("id", field.getId());
+					rec.put("alias", field.getAlias());
+					result.put(rec);
 				}
 			}
 			return result;
     	}catch(Exception e) {
     		LOG.error("获取即系查询表头有误，resid:" + resId + "," + e.getMessage(), e);
     	}
-    	return null;
+    	return new JSONArray();
     }
     
     /**
@@ -292,6 +308,7 @@ public class ReportModule {
     		detail.setImagePath(detail.getTmpImagePath());
 			detail.setImageName(detail.getTmpImageName());
 			detail.setUpdateUserId(userManagerModule.getCurrentUser().getId());
+			detail.setStatus("1");
 			detail.setUpdateDateTime(new Date());
 			ReportDetailDAO.getInstance().update(detail);
 			if(!StringUtil.isNullOrEmpty(detail.getImagePath()) && !StringUtil.isNullOrEmpty(detail.getImageName())
@@ -323,4 +340,51 @@ public class ReportModule {
     		return new JSONObject();
     	}
     }
+    
+    /**
+     * 根据报表id获取报表来源于模型
+     * @param resId 资源id
+     * @return
+     */
+    public JSONObject getReportDataModelByResId(String resId, int pageIndex, int pageSize) {
+    	try {    		
+    		CategoryResource categoryResource = new CategoryResource(); 
+    		categoryResource.setId(resId);
+    		List<String> filters = new ArrayList<String>();
+    		filters.add(ConfigUtil.RESTREE_DATASET_TYPE.AUGMENTED_DATASET);//数据模型
+    		//血缘关系查询
+    		List<IDocument> list = MetadataModule.getInstance().searchReferringTo(categoryResource, filters);    
+    		if(list != null && list.size() > 0) {
+    	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
+    	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
+    	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());    			
+    		}
+    		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize, 0); 
+    	}catch(Exception e) {
+    		LOG.error("getReportDataModelByResId错误：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "getReportDataModelByResId错误：" + e.getMessage());
+    	}    	
+    }   
+    
+    /**
+     * 根据报表资源id获取报表信息
+     * @param resId 资源id
+     * @return
+     */
+    public JSONObject getReportInfoByResId(String resId) {
+    	JSONObject result = new JSONObject();
+    	CatalogElement element = catalogTreeModule.getCatalogElementById(resId);
+    	if(element != null) {
+    		result = CommonUtils.createJsonByElement(element);
+    		//添加路径
+    		result = CommonUtils.addIndexPath(result, element);
+    		//是否授权
+    		result = CommonUtils.addIsAuthorized(result, element);
+    		//创建部门
+    		result = CommonUtils.addDefaultDepartment(result, element);
+    		//报表缩略图
+    		result.put("reportImgPath", "UpLoadReportDetailImageServlet?type=view&resid=" + resId);
+    	}
+    	return result;
+    }    
 }
