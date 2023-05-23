@@ -23,8 +23,7 @@ import smartbi.framework.IModule;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.repository.IDAOModule;
-import smartbi.util.HttpUtil;
-import smartbix.augmenteddataset.util.StringUtil;
+import smartbi.util.StringUtil;
 
 /**
  * 数据门户扩展包Module实现类
@@ -450,5 +449,4 @@ public class JinYuYiXueDataPortalModule implements IModule {
     public JSONObject getReportInfoByResId(String resId) {
     	return reportModule.getReportInfoByResId(resId);
     }
-    
 }

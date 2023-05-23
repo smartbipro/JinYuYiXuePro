@@ -31,7 +31,7 @@ public class CacheDataUtil {
      */
     public static String clearCacheIndexData() {
     	cacheIndexData.clear();
-    	return "清空自定义指标缓存数据成功.";
+    	return StringUtil.getLanguageValue("JYYX_DATA_CACHE_CLEAR_INDEX_SUCCESS");
     }  
     
     /**
@@ -40,7 +40,7 @@ public class CacheDataUtil {
      */
     public static String clearCacheDSData() {
     	cacheDSData.clear();
-    	return "清空自定义数据集缓存数据成功.";
+    	return StringUtil.getLanguageValue("JYYX_DATA_CACHE_CLEAR_DATASET_SUCCESS");
     }
     
     /**
@@ -49,7 +49,7 @@ public class CacheDataUtil {
      */
     public static String clearCacheReportData() {
     	cacheReportData.clear();
-    	return "清空自定义报表缓存数据成功.";
+    	return StringUtil.getLanguageValue("JYYX_DATA_CACHE_CLEAR_REPORT_SUCCESS");
     }
     
     /**
@@ -60,7 +60,7 @@ public class CacheDataUtil {
     	clearCacheIndexData();
     	clearCacheDSData();
     	clearCacheReportData();
-    	return "清空自定义指标、数据集、报表缓存所有数据成功.";
+    	return StringUtil.getLanguageValue("JYYX_DATA_CACHE_CLEAR_ALL_SUCCESS");
     }
 
     /**

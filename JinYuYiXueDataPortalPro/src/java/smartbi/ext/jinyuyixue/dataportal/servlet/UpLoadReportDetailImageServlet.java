@@ -28,12 +28,9 @@ import smartbi.config.SystemConfigService;
 import smartbi.ext.jinyuyixue.dataportal.repository.ReportDetail;
 import smartbi.ext.jinyuyixue.dataportal.repository.ReportDetailDAO;
 import smartbi.net.sf.json.JSONObject;
-import smartbi.uploadimg.repository.UploadImage;
-import smartbi.uploadimg.repository.UploadImageDAO;
 import smartbi.usermanager.UserManagerModule;
 import smartbi.util.StringUtil;
 import smartbi.util.UUIDGenerator;
-import sun.misc.BASE64Decoder;
 
 /**
  * 
@@ -120,7 +117,8 @@ public class UpLoadReportDetailImageServlet extends HttpServlet {
 					
 					String filePath = SystemConfigService.getInstance().getValue("JYYX_REPORT_DETAIL_PATH");
 					if(StringUtil.isNullOrEmpty(filePath)) {
-						String info = getFailMsgHtml("当前没有配置报表缩略图路径，无法操作，请在系统选项中设置正确的路径。");
+						String info = getFailMsgHtml(StringUtil.getLanguageValue("JYYX_REPORT_DETAIL_IMAGE_FAIL"));
+						//"当前没有配置报表缩略图路径，无法操作，请在系统选项中设置正确的路径。"
 						response.getOutputStream().write(info.getBytes("UTF-8"));
 						return;
 					}

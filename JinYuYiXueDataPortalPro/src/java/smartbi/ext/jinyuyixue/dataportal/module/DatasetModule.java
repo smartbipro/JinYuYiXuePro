@@ -1,7 +1,6 @@
 package smartbi.ext.jinyuyixue.dataportal.module;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +16,6 @@ import smartbi.ext.jinyuyixue.dataportal.util.PageUtil;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
-import smartbix.metricsmodel.metrics.service.MetricsBO;
 /**
  * 数据集模块实现类
  */
@@ -95,8 +93,8 @@ public class DatasetModule {
     		}
 	    	return CommonUtils.getSuccessData(data, pageIndex, pageSize, data.length());
     	}catch(Exception e) {
-    		LOG.error("getDataModelByIndexResId错误：" + e.getMessage(),e);
-    		return CommonUtils.getFailData(pageIndex, pageSize, "getDataModelByIndexResId错误：" + e.getMessage());
+    		LOG.error("getDataModelByIndexResId error：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "getDataModelByIndexResId error：" + e.getMessage());
     	}
     } 
     
@@ -132,8 +130,8 @@ public class DatasetModule {
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheDSData);
 	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
-    		LOG.error("searchIndexModelDataLikeAlias错误：" + e.getMessage(),e);
-    		return CommonUtils.getFailData(pageIndex, pageSize, "searchIndexModelDataLikeAlias错误：" + e.getMessage());
+    		LOG.error("searchIndexModelDataLikeAlias error：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "searchIndexModelDataLikeAlias error：" + e.getMessage());
     	}
     }
     

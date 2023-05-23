@@ -31,14 +31,10 @@ import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
 import smartbi.util.XmlUtility;
-import smartbix.metricsmodel.metrics.service.MetricsBO;
 import smartbix.modelquery.bean.ModelQueryBean;
 import smartbix.modelquery.bean.ModelQueryField;
-import smartbix.modelquery.dao.ModelQueryDAO;
-import smartbix.smartbi.metricsmodel.MetricsModelForVModule;
 import smartbix.smartbi.modelquery.ModelQueryForVModule;
 import smartbix.util.StringUtil;
-import smartbixlibs.net.sf.ehcache.config.generator.ConfigurationUtil;
 /**
  * 报表模块实现类
  */
@@ -99,8 +95,8 @@ public class ReportModule {
 	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByCatalog(pageList, CacheDataUtil.cacheReportData, true);
 	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
-    		LOG.error("searchReportDataLikeAlias错误：" + e.getMessage(),e);
-    		return CommonUtils.getFailData(pageIndex, pageSize, "searchReportDataLikeAlias错误：" + e.getMessage());
+    		LOG.error("searchReportDataLikeAlias error：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "searchReportDataLikeAlias error：" + e.getMessage());
     	}
     }
     
@@ -169,8 +165,8 @@ public class ReportModule {
     		}
     		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize, 0); 
     	}catch(Exception e) {
-    		LOG.error("getReportByIndexResId错误：" + e.getMessage(),e);
-    		return CommonUtils.getFailData(pageIndex, pageSize, "getReportByIndexResId错误：" + e.getMessage());
+    		LOG.error("getReportByIndexResId error：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "getReportByIndexResId error：" + e.getMessage());
     	}
     }  
     
@@ -361,8 +357,8 @@ public class ReportModule {
     		}
     		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize, 0); 
     	}catch(Exception e) {
-    		LOG.error("getReportDataModelByResId错误：" + e.getMessage(),e);
-    		return CommonUtils.getFailData(pageIndex, pageSize, "getReportDataModelByResId错误：" + e.getMessage());
+    		LOG.error("getReportDataModelByResId error：" + e.getMessage(),e);
+    		return CommonUtils.getFailData(pageIndex, pageSize, "getReportDataModelByResId error：" + e.getMessage());
     	}    	
     }   
     

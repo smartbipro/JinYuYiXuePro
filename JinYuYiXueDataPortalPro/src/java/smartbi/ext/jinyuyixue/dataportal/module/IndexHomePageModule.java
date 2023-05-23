@@ -18,6 +18,7 @@ import smartbi.ext.jinyuyixue.dataportal.util.ConfigUtil.REPORT_TYPE;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
+import smartbi.util.StringUtil;
 /**
  * 指标首页模块实现类
  */
@@ -173,7 +174,7 @@ public class IndexHomePageModule {
     	}catch(Exception e) {
     		LOG.error(e.getMessage(), e);
     		result.put("success", false);
-    		result.put("errorMsg", "删除节点失败：" + e.getMessage());
+    		result.put("errorMsg", StringUtil.getLanguageValue("JYYX_DELETE_NODE_FAIL") + e.getMessage());
     		return result;
     	}
     }

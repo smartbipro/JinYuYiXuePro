@@ -124,13 +124,13 @@ public class MemuModule {
 				result.put("errorMsg", "资源id：[" + resId + "]不存在!");
 				return result;
 			}
-			CatalogElement dstElement = catalogTreeModule.getCatalogElementById(resId);
+			CatalogElement dstElement = catalogTreeModule.getCatalogElementById(toDirResId);
 			if(dstElement == null) {
 				result.put("success", false);
 				result.put("errorMsg", "目标目录资源id：[" + toDirResId + "]不存在!");
 				return result;
 			}
-			if((!dstElement.getType().equals("DEFAULT_TREENODE")) || (!dstElement.getType().equals("SELF_TREENODE"))) {
+			if(!(dstElement.getType().equals("DEFAULT_TREENODE") || dstElement.getType().equals("SELF_TREENODE"))) {
 				result.put("success", false);
 				result.put("errorMsg", "目标资源非目录，不允许移动到该资源下，id：[" + toDirResId + "]!");
 				return result;
