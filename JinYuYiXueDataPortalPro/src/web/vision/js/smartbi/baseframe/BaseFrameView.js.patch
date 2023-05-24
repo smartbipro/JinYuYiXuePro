@@ -1,0 +1,48 @@
+/**
+ * 打开后新建首页顶部查询框
+ * @type {BaseFrameView.executeCmd}
+ */
+BaseFrameView.prototype.executeCmd_EPPR59395 = BaseFrameView.prototype.executeCmd;
+BaseFrameView.prototype.executeCmd = function (commands, params, module) {
+	this.executeCmd_EPPR59395(commands, params, module);
+	//新增金域医学中间查询按钮
+    if (PortalIndexUtil.isCustomPortalPage() && !this.jinyuSearchInit) {
+		//获取到兄弟节点
+		var tabPane = domutils.findElementByBofid(document.body, "tabPane");
+		var searchDiv = document.createElement("div");
+		searchDiv.style = "width: 450px;height: 35px;border-radius: 42px;padding: 0px 30px;margin: 15px auto;background: #fff;position: absolute;display: block;left: 460px;border: 1px solid #405dce;";
+		var searchInput = document.createElement("input");
+		searchInput.style = "top: 23px;position: fixed;width: 423px;align-items: center;height: 20px;border: none;outline: none;font-size: 16px;align-content: center;color: #86909C;border-right: 1px solid #e4e7ed;";
+		searchInput.placeholder="请输入关键词搜索";
+		searchInput.type = "text";
+		searchInput.id = "jinyuSearchInput";
+		
+		var searchImage = document.createElement("img");
+		searchImage.style = "width: 18px;height: 18px;cursor: pointer;right: 20px;top: 10px;position: absolute;";
+		searchImage.src = "img/jinyuportal/search.png";
+		
+		searchDiv.appendChild(searchInput);
+		searchDiv.appendChild(searchImage);
+		tabPane.parentElement.insertBefore(searchDiv, tabPane);
+		this.addListener(searchImage, "click", this.jinyuSearch, this);
+		this.addListener(searchInput, "keydown", this.jinyuSearchKeyDown, this);
+        this.jinyuSearchInit = true;
+    }
+};
+
+/**
+ * 查询框点击查询按钮事件
+ */
+BaseFrameView.prototype.jinyuSearch = function(){
+	console.log(document.getElementById('jinyuSearchInput').value);
+}
+
+/**
+ * 查询框回车事件
+ */
+BaseFrameView.prototype.jinyuSearchKeyDown = function(e){
+	var evt = window.event || e;
+	if(evt.keyCode == 13){
+		console.log(e.target.value);
+	}
+}

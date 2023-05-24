@@ -1,0 +1,6 @@
+SuperviseCommandFactory.prototype.getCommand_EPPR59395 = SuperviseCommandFactory.prototype.getCommand;
+SuperviseCommandFactory.prototype.getCommand = function (command) {
+	this.cmdMapping['JinYuCombinedQueryCommand'] = 'smartbi.combinedquery.JinYuCombinedQueryCommand';
+	this.cmdMapping['CustomeSmartbiXCommand'] = 'customeCommand.CustomeSmartbiXCommand';
+	return this.getCommand_EPPR59395(command)
+}

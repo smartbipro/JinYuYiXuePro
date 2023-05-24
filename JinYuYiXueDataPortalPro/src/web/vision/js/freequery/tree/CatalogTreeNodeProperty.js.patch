@@ -1,0 +1,122 @@
+CatalogTreeNodeProperty.prototype.init_EPPR59395 = CatalogTreeNodeProperty.prototype.init;
+CatalogTreeNodeProperty.prototype.init = function(parent,node,fn,obj) {
+	this.init_EPPR59395(parent,node,fn,obj);
+	var owner = this;
+	// 即席查询和仪表盘
+	if (node._type == "COMBINED_QUERY" || node._type == "SMARTBIX_PAGE") {
+		var acceptImageTypes = domutils.setImageAccept();
+	 	var nodeId = domutils.findElementByClassName(parent, "_nodeId").value;
+			var html='<tr>'+
+						'<td>报表缩略图：</td>'+
+						'<td>'+
+						'<span class="_fontIcon iconfont">' +
+						'<div class="treenode_icon"  style="display: inline;"> ' +
+						'<img  class="iconfont icon-xingzhuang-tupian" align="absMiddle" style="display: none;">' + 
+						'<span id="customeReportImage" qtp="TreeNodeIcon_fontIcon" style="cursor: pointer;" class="iconfont icon-xingzhuang-tupian" font="icon-xingzhuang-tupian"></span>' + 
+						'</span>' +
+						'</div>' +
+						'</span>' + 
+						'<input type="button" class="_selectIcon barbtn" style="margin-left:5px;" id="uploadCustomeReportScreenshotButton" value="${UploadPhoto}"  />'+
+						'<span style="display:none">' +
+						'<form action="UpLoadReportDetailImageServlet" class="uploadReportDetailFrom" enctype="MULTIPART/FORM-DATA" method="POST" target="uploadIframe" style="dispaly: none">'+
+						  '<input bofid="uploadReportDetailFile" accept="'+
+						  acceptImageTypes + 
+						  '" type="file" name="uploadReportDetailFile" id="uploadReportDetailFile" class="imageuploadreportdetail_input">'+
+						  '<input type="hidden" name="type" value="upload" />'+
+						  '<input type="hidden" name="resid" value="' + this.id + '" />' + 
+						  '</form>'+
+						'<iframe bofid="uploadIframe" name="uploadIframe"></iframe></span>' + 
+						'</td></tr>';
+						
+				var nt = domutils.findElementByClassName(parent, "dialog_editformitems");
+				$(nt.lastChild).append(html);
+				
+			var customeReportImageBtn = document.getElementById("customeReportImage");
+			owner.addListener(customeReportImageBtn, "click", owner.customeDoOpenImage, owner);	
+					
+			var uploadCustomeReportScreenshotBtn = document.getElementById("uploadCustomeReportScreenshotButton");
+			//绑定上传报表缩略图图片事件
+			owner.addListener(uploadCustomeReportScreenshotBtn, "click", owner.uploadCustomeReportScreenshotButtonF, owner);	
+			
+			owner.$uploadReportDetailFile = $(parent).find('.imageuploadreportdetail_input');
+			
+			owner.uploadReportDetailFrom =  domutils.findElementByClassName(parent, "uploadReportDetailFrom");
+			
+			owner.$uploadReportDetailFile.bind('change', owner.iconUploadReportDetail_change.bind(owner));
+	}
+};
+//点击缩略图的按钮
+CatalogTreeNodeProperty.prototype.doOK_EPPR59395=CatalogTreeNodeProperty.prototype.doOK;
+CatalogTreeNodeProperty.prototype.doOK = function(e) {
+	this.doOK_EPPR59395(e)
+	if (this.data._type == "COMBINED_QUERY" || this.data._type == "SMARTBIX_PAGE") {
+	 	util.remoteInvoke("JinYuYiXueDataPortalModule", "saveReportDetail", [this.id]);
+	}
+}
+
+/**
+ * 自定义点击事件放大报表缩略图
+ */
+CatalogTreeNodeProperty.prototype.customeDoOpenImage = function(e){
+    //图片高度 
+    var imgHeight = window.innerHeight- 180;
+    //图片宽度 
+    var imgWidth = window.innerWidth - 100;
+    //弹出窗口高度 
+    var dialogHeight = window.innerHeight - 100;
+    //弹出窗口宽度 
+    var dialogWidth = window.innerWidth - 80;
+
+    var modalWindow = jsloader.resolve("freequery.common.modalWindow");
+    //放大图片元素 
+	//var contentHtml = '<img width="' + imgWidth + '" height="' + imgHeight + '" id="showReportDetil" src="UpLoadReportDetailImageServlet?tempimage=1&type=view&resid=' + this.id + '">'; //弹出窗口
+	var contentHtml = '<img id="showReportDetil" src="UpLoadReportDetailImageServlet?tempimage=1&type=view&resid=' + this.id + '">'; //弹出窗口
+    modalWindow.callLayer('open', {
+        type: 1,
+		area: dialogWidth + 'px,' + dialogHeight + 'px'.split(','),
+        title: '查看报表缩略图',
+        content: contentHtml,
+        zIndex: modalWindow.get_zIndex(),
+        btn: ['确认'],
+        moveOut: true,
+        // 是否允许拖拽到窗口外
+        yes: function(index, layero) {
+            modalWindow.callLayer('close', index);
+        }
+    });
+	var showReportDetil = document.getElementById('showReportDetil');
+	if(showReportDetil && showReportDetil.parentElement && showReportDetil.parentElement.parentElement){
+		showReportDetil.parentElement.parentElement.style.top = "2px";
+		showReportDetil.parentElement.parentElement.style.left = "2px";
+	}	
+}
+
+/**
+ * 上传缩略图事件
+ */
+CatalogTreeNodeProperty.prototype.uploadCustomeReportScreenshotButtonF = function(e){
+	if (this.$uploadReportDetailFile) {
+		this.$uploadReportDetailFile.click();
+	}
+	e.stopPropagation();
+	e.preventDefault();
+	return false;	
+}
+
+CatalogTreeNodeProperty.prototype.iconUploadReportDetail_change = function (e) {
+  var uploadButton = this.$uploadReportDetailFile.get(0);
+  
+  var file = uploadButton.files[0];
+  var fileName = file ? file.name : this.$uploadReportDetailFile.val();
+  if (fileName == null || fileName == '') {
+    return;
+  }
+  var isImg = /\.(png|jpg|jpeg|gif|svg)$/i.test(fileName);
+  if (!isImg) {
+		alert(domutils.getErrorAcceptMsg());
+    return;
+  }
+  this.submit = true;
+  this.uploadReportDetailFrom.submit();
+}
+

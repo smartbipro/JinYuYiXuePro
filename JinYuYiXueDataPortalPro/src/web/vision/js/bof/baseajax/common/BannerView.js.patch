@@ -1,0 +1,210 @@
+﻿/**
+ * 添加右上角新建菜单项: 组合分析
+ */
+BannerView.prototype.getCreateAnalysisItems_EPPR59395 = BannerView.prototype.getCreateAnalysisItems;
+BannerView.prototype.getCreateAnalysisItems = function() {
+  var items = this.getCreateAnalysisItems_EPPR59395();
+  items.push({
+    'text': '即席查询',
+    'action': 'jinyuCreateCombinedquery',
+    'licenses': 'WizardQuery',
+    'funcIds': 'CUSTOM_DISPLAYCUSTOM_COMBINEDQUERY',
+    'order': 101,
+    'moduleid':'Analysis'
+  });
+  return items;
+};
+
+/**
+ * 数据门户数据分析创建透视分析
+ */
+BannerView.prototype.doCmd_EPPR59395 = BannerView.prototype.doCmd;
+BannerView.prototype.doCmd = function(cmd, ev) {
+	this.doCmd_EPPR59395(cmd, ev);
+	switch (cmd) {
+		case 'jinyuCreateCombinedquery':
+			var func = 'CREATE';
+			var manager = registry.get('CurrentManager');
+			var tab = manager.createTab([this.getCustomeUuid(),[ cmd, func ]], '新建即席查询');
+			if (!tab) {
+				return;
+			}
+			var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+			var command = commandFactory.getCommand('JinYuCombinedQueryCommand');
+			if (command) {
+				tab.command = command;
+				command.onClose.subscribe(function() {
+					tab.btnClose.click();
+				}, this);
+				command.execute(func);
+				tab.closeNotConfirm = true;
+				this.reSetTabCaption(tab, 6);
+      		} else {
+      			tab.btnClose.click();
+      		}	  
+			commandFactory.getCommand('CombinedQueryCommand').onClose.subscribe(function() {
+				tab.btnClose.click();
+        	}, this);
+      		break;
+	}
+};
+
+/**
+ * 重置tab的标题
+ */
+BannerView.prototype.reSetTabCaption = function(tab, len){
+	tab.customeSetCaption = tab.setCaption;
+	tab.setCaption = function(value){
+		tab.customeSetCaption(value);
+		if(value && value.length >= len){
+			tab.spanText.innerHTML = value.substring(0,(len-1)) + "...";
+		}
+	}
+}
+
+/**
+ * 获取uuid
+ */
+BannerView.prototype.getCustomeUuid = function(){
+	var UUIDGenerator = jsloader.resolve("freequery.thirdparty.UUIDGenerator");
+	var uuid = new UUIDGenerator();
+	return uuid.createUUID();
+}
+
+/**
+ * 获取默认保存目录
+ */
+BannerView.prototype.getCustomeSaveFolderId = function(){
+	var ret = util.remoteInvokeEx("JinYuYiXueDataPortalModule", "getCurrentUserMsg", []);
+	if (ret && ret.succeeded) {
+		return ret.result.selfPath;
+	}
+	return "";
+}
+
+/**
+ * 根据指标模型id或者业务主题创建即席查询报表
+ */
+BannerView.prototype.createCustomeCombinedBySourceId = function(sourceId){
+	var cmd = "jinyuCreateCombinedquery";
+	var func = 'CREATE';
+	var manager = registry.get('CurrentManager');
+	var tab = manager.createTab([this.getCustomeUuid(),[ cmd, func ]], '新建即席查询');
+	if (!tab) {
+		return;
+	}
+	var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+	var command = commandFactory.getCommand('JinYuCombinedQueryCommand');
+	if (command) {
+		tab.command = command;
+		command.onClose.subscribe(function() {
+			tab.btnClose.click();
+		}, this);
+		var node = {
+			dataSetType:"AugmentedDataSet",
+			dataSetId:"I8a8af1ef01801c6f1c6f5082018040e28fe711e2",
+		}
+		command.action = func;
+		command.node = node;
+		command.createJinYuYiXue(node,true,true);
+		tab.closeNotConfirm = true;
+		this.reSetTabCaption(tab, 6);
+	} else {
+		tab.btnClose.click();
+	}	  
+	commandFactory.getCommand('CombinedQueryCommand').onClose.subscribe(function() {
+		tab.btnClose.click();
+	}, this);	
+	
+}
+
+/**
+ * 创建仪表盘
+ * @param isNewWindow 是否新窗口
+ */
+BannerView.prototype.createCustomeDashboard = function(isNewWindow){
+	var url = "../smartbix/?integrated=true&showheader=false&commandid=" + this.getCustomeUuid() + "&l=zh_CN&nodeid=" + this.getCustomeSaveFolderId() + "#/dashboard";
+	if(isNewWindow){
+		window.open(url);
+	} else {
+		var text = "新建交互仪表盘报表";
+		var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+		var command = commandFactory.getCommand('CustomeSmartbiXCommand');
+		var data ={
+			action: "SMARTBIX_OPEN_URL",
+			alias: text,
+			commandid: undefined,
+			from: "SMARTBIX",
+			id: "",
+			isOpenResourceParam: true,
+			method: "post",
+			name: text,
+			paramsInfo: [],
+			to: "SMARTBI",
+			url: url,
+			uuid: this.getCustomeUuid()
+		} 
+		command.createCustomeCombinedBySourceId(data, true);
+	}
+}
+
+
+/**
+ * 根据类型和只读类型打开报表
+ * @param reportType 报表类型
+ * @param isRead     是否只读
+ * @param resId      资源id
+ */
+BannerView.prototype.openCustomeTabByResId = function(reportType, isRead, resId){
+	var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+	var command = commandFactory.getCommand('CustomeSmartbiXCommand');
+	var url = "";
+	switch (reportType) {
+		case "combinedquery":
+			url = "../vision/openresource.jsp?resid=" + resId;
+			if(isRead){
+				url += "&hidetoolbaritems=SAVE SAVEAS MYFAVORITE EXPORT VIEWSQL VIEW CHARTSETTING PRINT PARAMSETTING REPORTSETTING FIELDSETTING CREATEINSIGHTINQUERY MPP FILTERRELATIONSSETTING USERPARAM TIMECONSUMING";
+				url += " BACKWARD FORWARD SPACE2 SELECTFIELD SUBTOTAL SETUSERPARAM EDITDATASET";
+			}			
+			break;
+		case "dashboard":
+			url = "../smartbix/?integrated=true&showheader=false&isNewWindows=true&l=zh_CN#/dashboard/" + resId;
+			if(isRead){
+				url = "../smartbix/?integrated=true&showheader=false&l=zh_CN#/page/" + resId;				
+			}
+			break;
+	}
+	if(url) {
+		command.openUrlInTabForJinYuYiXue(resId, url);
+	}		
+}
+
+/**
+ * 创建仪表盘
+ * @param isNewWindow 是否新窗口
+ */
+BannerView.prototype.createCustomeDashboardBySourceId = function(isNewWindow, sourceId){
+	var url = "../smartbix/?integrated=true&showheader=false&isLargeScreen=true&isNewWindows=true&l=zh_CN&nodeid=" + this.getCustomeSaveFolderId() + "&commandid=" + this.getCustomeUuid() + "&datasetid=" + sourceId + "#/dashboard";
+	if(isNewWindow){
+		window.open(url);
+	} else {
+		var text = "新建仪表盘";
+		var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+		var command = commandFactory.getCommand('CustomeSmartbiXCommand');
+		var data ={
+			action: "SMARTBIX_OPEN_URL",
+			alias: text,
+			commandid: undefined,
+			from: "SMARTBIX",
+			id: "",
+			isOpenResourceParam: true,
+			method: "post",
+			name: text,
+			paramsInfo: [],
+			to: "SMARTBI",
+			url: url,
+			uuid: this.getCustomeUuid()
+		} 
+		command.createCustomeCombinedBySourceId(data, true);
+	}
+}

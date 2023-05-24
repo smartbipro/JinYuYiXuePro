@@ -1,9 +1,13 @@
-var jsloader = new JSLoader();
+var jsloader = parent.parent.jsloader;
+if(!jsloader){
+	jsloader = new JSLoader();
+}
 var util = jsloader.resolve('freequery.common.util');
 var lang = jsloader.resolve("freequery.lang.lang");
 var userService = jsloader.imports('bof.usermanager.UserService').getInstance();
 var passed = false;
 var jyyxDataPortalModual = "JinYuYiXueDataPortalModule";
+var registry = jsloader.resolve('freequery.lang.registry');
 //初始化
 function init(){
 /*	var loginmsg = document.getElementById("loginmsg");
@@ -17,7 +21,7 @@ function init(){
 	}catch(e){
 		loginmsg.textContent = "当前未登录";
 	}*/
-	login();
+	//login();
 }
 //关闭窗口
 function cleanup() {
@@ -190,4 +194,135 @@ function indexClickCalc(type){
 	}
 	ret = util.remoteInvokeEx(jyyxDataPortalModual, methodName, [indexId, indexName]);
 	debugger;
+/*	var SearchHelper = jsloader.resolve('bof.baseajax.common.searchHelper');
+	debugger;
+	SearchHelper.open("I8a8a85a20187b1f6b1f6bfa00187b205bc520064", "xxxx", "SIMPLE_REPORT");*/
+	
+	var bannerView = registry.get('bannerView');
+	//bannerView._combinedQuery_getCreateAnalysisItems();
+	var config = bannerView._combinedQuery_getCreateAnalysisItems();
+	
+	  var items = bannerView._combinedQuery_getCreateAnalysisItems();
+	  items.push({
+	    'text': '即席查询',
+	    'action': 'CreateCombinedquery',
+	    'licenses': 'WizardQuery',
+	    'funcIds': 'CUSTOM_DISPLAYCUSTOM_COMBINEDQUERY',
+	    'order': 101,
+	    'moduleid':'Analysis'
+	  });
+
+	  var cmd = {
+	    'text': '即席查询',
+	    'action': 'CreateCombinedquery',
+	    'licenses': 'WizardQuery',
+	    'funcIds': 'CUSTOM_DISPLAYCUSTOM_COMBINEDQUERY',
+	    'order': 101,
+	    'moduleid':'Analysis'
+	  };
+      var func = 'CREATE';
+      var manager = registry.get('CurrentManager');
+      var tab = manager.createTab(['DEFAULT_TREENODE',[ cmd, func ]], '新建即席查询');
+      if (!tab) {
+        return;
+      }
+      var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+      var command = commandFactory.getCommand('CombinedQueryCommand');
+      if (command) {
+        tab.command = command;
+        command.onClose.subscribe(function() {
+          tab.doClose();
+        }, this);
+        command.execute(func);
+      } else {
+        tab.doClose();
+      }
+
+	bannerView.__combinedQuery_doCmd(items,this);
 }
+
+/**
+ * 获取uuid
+ */
+function getUUID(){
+	var UUIDGenerator = jsloader.resolve("freequery.thirdparty.UUIDGenerator");
+	var uuid = new UUIDGenerator();
+	return uuid.createUUID();
+}
+
+
+function createTabByUrl(){
+	var type = "combinedquery";
+	var url = "";
+	var isValid = false;//是否有该操作权限
+	var domutils;
+	if (!domutils) {
+		domutils = jsloader.resolve("freequery.lang.domutils");
+	}
+	switch (type) {
+		case "combinedquery":
+			isValid = util.checkFunctionValid("CUSTOM_DISPLAYCUSTOM_COMBINEDQUERY") && util.checkFunctionValid("AUGMENTED_DATASET_ADHOC");
+			url = "../vision/createresource.jsp?restype=combinedquery";
+			break;
+		case "insight":
+			isValid = domutils.checkFunctionValid("CUSTOM_DISPLAYCUSTOM_INSIGHT");
+			url = "../vision/createresource.jsp?restype=INSIGHT";
+			break;
+		case "dashboard":
+			isValid = util.checkFunctionValid("XDASHBOARD_CREATE");
+			url = "../smartbix/?integrated=true&showheader=false&dashboardInitId=I1f81a9e00169c94ac94a43130169d2cd942b0430&l=zh_CN&nodeid=DEFAULT_TREENODE#/dashboard";
+			break;
+	}
+	if (!isValid) {
+		alert("您无权进行此项操作");
+		return;
+	}
+	if (url) {
+		debugger;
+		var bannerView = registry.get('bannerView');
+		if(bannerView){
+			//bannerView.openMySettings();
+			//bannerView.doCmd('jinyuCreateCombinedquery');
+			//bannerView.doCreateTabByUrl("../vision/openresource.jsp?resid=" + document.getElementById("jxcxresid").value);
+		}
+		//jinyuCreateCombinedquery
+		//CreateXDashboard
+		//CreateCombinedquery
+		window.open(url);
+		
+	} else {
+		alert("传入的类型不正确:" + type);
+	}	
+}
+
+function createTabTest(flag){
+	var bannerView = registry.get('bannerView');
+	switch(flag){
+		case "1"://即席查询新建
+			bannerView.doCmd('jinyuCreateCombinedquery');
+		break;
+		case "2"://即席查询新建带数据模型id
+			bannerView.createCustomeCombinedBySourceId('I8a8af1ef01801c6f1c6f5082018040e28fe711e2');
+		break;		
+		case "3"://即系查询只读
+			bannerView.openCustomeTabByResId('combinedquery',true,'I8a88a4960188098f098fc0fa0188098fc0fa0000');
+		break;
+		case "4"://即席查询编辑
+			bannerView.openCustomeTabByResId('combinedquery',false,'I8a88a4960188098f098fc0fa0188098fc0fa0000');
+		break;
+		case "5"://自助仪表盘新建
+			bannerView.createCustomeDashboard(true);
+		break;
+		case "6"://自助仪表盘新建带数据模型id
+			bannerView.createCustomeDashboardBySourceId(true, "I8a8af1ef01801c6f1c6f5082018040e28fe711e2");
+		break;
+		case "7"://自助仪表盘只读
+			bannerView.openCustomeTabByResId('dashboard',true,'0e6f2e9d7b2231ff5d16d15fb4ef750b');
+		break;		
+		case "8"://自助仪表盘编辑
+			bannerView.openCustomeTabByResId('dashboard',false,'0e6f2e9d7b2231ff5d16d15fb4ef750b');
+		break;	
+	}
+}
+
+

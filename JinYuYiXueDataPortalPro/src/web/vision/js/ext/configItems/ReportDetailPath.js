@@ -20,19 +20,10 @@ ReportDetailPath.prototype.init = function() {
   this.tr.appendChild(this.td1);
 
   this.td2 = document.createElement('td');
-  this.td2.innerHTML = '<input class="JYYX_REPORT_DETAIL_PATH inputtext" type="text" maxlength="300" style="width:100%;" />';
+  this.td2.innerHTML = '<input class="ReportDetailPath inputtext" type="text" maxlength="300" style="width:100%;" />';
   this.tr.appendChild(this.td2);
 
-  this.td3 = document.createElement('td');
-  this.td3.innerHTML = "${Theinitialvalue(Blank)}";
-  this.tr.appendChild(this.td3);
-
-  this.td4 = document.createElement('td');
-  this.td4.innerHTML = "<div style='height:30px;  '><input class='button-buttonbar-noimage' value='${Restoreoriginalvalues}' type='button' style='width:100%;' /></div>";
-
-  this.tr.appendChild(this.td4);
-
-  this.editer = domutils.findElementByClassName([ this.tr ], 'JYYX_REPORT_DETAIL_PATH');
+  this.editer = domutils.findElementByClassName([ this.tr ], 'ReportDetailPath');
   this.editer.value = '';
   return this.tr;
 };
