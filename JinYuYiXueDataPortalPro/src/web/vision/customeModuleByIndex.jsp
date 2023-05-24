@@ -39,11 +39,11 @@ input{width:300px}
 	</div>
 	<hr>
 	<div style="padding-top:5px;">		
-		<label style="color:red;">即系查询</label>
-		<input type="button" value="新建即系查询" onclick="createTabTest('1');" style="width:200px;" />
-		<input type="button" value="新建即系查询(带模型id)" onclick="createTabTest('2');" style="width:200px;" />
-		<input type="button" value="打开即系查询(只读)" onclick="createTabTest('3');" style="width:200px;" />
-		<input type="button" value="打开即系查询(编辑)" onclick="createTabTest('4');" style="width:200px;" />
+		<label style="color:red;">即席查询</label>
+		<input type="button" value="新建即席查询" onclick="createTabTest('1');" style="width:200px;" />
+		<input type="button" value="新建即席查询(带模型id)" onclick="createTabTest('2');" style="width:200px;" />
+		<input type="button" value="打开即席查询(只读)" onclick="createTabTest('3');" style="width:200px;" />
+		<input type="button" value="打开即席查询(编辑)" onclick="createTabTest('4');" style="width:200px;" />
 		
 		<br>
 		<label style="color:red;">仪  表  盘</label>
