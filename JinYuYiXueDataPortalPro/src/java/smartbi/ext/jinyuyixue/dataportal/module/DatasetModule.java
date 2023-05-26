@@ -159,6 +159,8 @@ public class DatasetModule {
     			continue;
     		}
     		JSONObject map = CommonUtils.createJsonByElement(element);
+    		//创建人部门
+    		map = CommonUtils.addDefaultDepartment(map, element);    		
     		//添加指标路径
     		map = CommonUtils.addIndexPath(map, element);
     		//添加授权
@@ -166,7 +168,7 @@ public class DatasetModule {
     		//是否有创建即席查询、自助仪表盘权限
     		map = CommonUtils.addOpAuthorized(map, opAuthorized);
     		//添加指标模型id和数据模型id
-    		map = addModelData(map, resId);    		
+    		map = addModelData(map, resId);  
     		//加载如返回列表中    		
     		result.put(map);
     		//将指标数据进行缓存
