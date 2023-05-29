@@ -322,6 +322,9 @@ function createTabTest(flag){
 		case "8"://自助仪表盘编辑
 			bannerView.openCustomeTabByResId('dashboard',false,'0e6f2e9d7b2231ff5d16d15fb4ef750b');
 		break;	
+		case "9"://打开窗口
+			bannerView.createCustomeOpenTabByUrl("明细报表","../vision/customeModuleByIndex.jsp");
+			break;
 	}
 }
 

@@ -52,6 +52,7 @@ input{width:300px}
 		<input type="button" value="打开仪表盘(只读)" onclick="createTabTest('7');" style="width:200px;" />
 		<input type="button" value="打开仪表盘(编辑)" onclick="createTabTest('8');" style="width:200px;" />
 		
+		<input type="button" value="tab明细demo" onclick="createTabTest('9');" style="width:200px;" />
 		<!-- <input type="button" value="新建仪表分析(tab)" onclick="createTabTest('9');" style="width:200px;" />
 		<input type="button" value="新建仪表分析(带模型id)(tab)" onclick="createTabTest('10');" style="width:300px;" />
 		<input type="button" value="新建即席查询2" onclick="createTabTest('11');" style="width:300px;" />	 -->		
