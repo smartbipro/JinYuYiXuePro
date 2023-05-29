@@ -32,6 +32,7 @@ import smartbi.usermanager.UserManagerModule;
 import smartbix.augmenteddataset.util.StringUtil;
 import smartbix.metricsmodel.common.search.ConditionRelation;
 import smartbix.metricsmodel.common.search.MTPOFieldNameEnum;
+import smartbix.metricsmodel.datamodel.service.MetricsDataModelBO;
 import smartbix.metricsmodel.dimension.service.DimensionBO;
 import smartbix.metricsmodel.metrics.service.MetricsBO;
 import smartbix.metricsmodel.metrics.service.MetricsFilter;
@@ -196,7 +197,6 @@ public class IndexModule {
     		MetricsFilter metricsFilter = new MetricsFilter();
     		metricsFilter.setConditionRelation(conditionRelation);
     		//获取指标信息
-
     		SearchResult<MetricsBO> searchResult = MetricsModelForVModule.getInstance().getMetricsManageService().searchMetrics(metricsFilter, purview);
     		List<MetricsBO> list = searchResult.getResultList();
 	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
@@ -269,6 +269,8 @@ public class IndexModule {
     		map = CommonUtils.addIsAuthorized(map, element);
     		//是否有创建即席查询、自助仪表盘权限
     		map = CommonUtils.addOpAuthorized(map, opAuthorized);
+    		//指标关联的数据模型信息
+    		map = addDataModelArray(map, element);
     		//加载如返回列表中    		
     		result.put(map);
     		//将指标数据进行缓存
@@ -278,6 +280,38 @@ public class IndexModule {
     	}
     	return result;
     }  
+    
+    /**
+     * 指标关联的数据模型信息
+     * @param json    目标json对象
+     * @param element 指标资源对象
+     * @return
+     */
+    private JSONObject addDataModelArray(JSONObject json, CatalogElement element) {
+    	JSONArray dataModelList = new JSONArray();
+    	if(element != null) {
+    		List<MetricsDataModelBO> list = MetricsModelForVModule.getInstance().getMetricsDataModelService().getMetricsDataModelListByMetricsId(element.getId());
+    		if(list != null && list.size() > 0) {
+	    		for(MetricsDataModelBO metrics : list) {
+	    			CatalogElement modelElement = catalogTreeModule.getCatalogElementById(metrics.getDataModelId());
+	    			if(modelElement != null) {
+	    				JSONObject rec = CommonUtils.createJsonByElement(modelElement);
+	    				rec.put("modelId", metrics.getMetricsModelId());
+		    			rec.put("dataModelId", metrics.getDataModelId());	    				
+	    	    		//添加指标路径
+	    				rec = CommonUtils.addIndexPath(rec, modelElement);
+	    	    		//添加授权
+	    				rec = CommonUtils.addIsAuthorized(rec, modelElement);			
+	    	    		//添加默认部门
+	    				rec = CommonUtils.addDefaultDepartment(rec, modelElement);
+	    				dataModelList.put(rec);
+	    			}
+	    		}
+    		}
+    	}
+    	json.put("dataModuleList", dataModelList);
+    	return json;
+    }
     
     /**
      * 添加数据更新日期和提出部门
@@ -334,10 +368,10 @@ public class IndexModule {
      */
     private JSONObject addIndexFieldName(JSONObject json, MetricsBO metricsBO) { 
 		json.put("alias2", json.get("alias") + "(" + metricsBO.getFactTableField().getName() + ")");
-		String modelId = metricsBO.getModelId();
-		String dataModelId = CommonUtils.getDataModelIdByMetricsBo(metricsBO);
-		json.put("modelId", modelId);
-		json.put("dataModelId", dataModelId);
+//		String modelId = metricsBO.getModelId();
+//		String dataModelId = CommonUtils.getDataModelIdByMetricsBo(metricsBO);
+//		json.put("modelId", modelId);
+//		json.put("dataModelId", dataModelId);
 		json.put("factTableName", metricsBO.getFactTable().getName());
     	return json;
     }    
