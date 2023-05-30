@@ -251,14 +251,14 @@ public class JinYuYiXueDataPortalModule implements IModule {
 	
     /**
 	 * 根据指标id获取影响性的报表列表数据
-	 * @param resId     资源id
+	 * @param resIds     资源id
 	 * @param pageIndex 页码
 	 * @param pageSize 每页大小
 	 * @return result 
      * @return
      */
-    public JSONObject getReportByIndexResId(String resId, int pageIndex, int pageSize) {
-    	return reportModule.getReportByIndexResId(resId, pageIndex, pageSize);
+    public JSONObject getReportByIndexResId(String resIds, int pageIndex, int pageSize) {
+    	return reportModule.getReportByIndexResId(resIds, pageIndex, pageSize);
     }
     
     /**

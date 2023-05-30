@@ -143,21 +143,31 @@ public class ReportModule {
     
     /**
 	 * 根据指标id获取影响性的报表列表数据
-	 * @param resId     资源id
+	 * @param resIds     资源id
 	 * @param pageIndex 页码
 	 * @param pageSize 每页大小
 	 * @return result 
      * @return
      */
-    public JSONObject getReportByIndexResId(String resId, int pageIndex, int pageSize) {
+    public JSONObject getReportByIndexResId(String resIds, int pageIndex, int pageSize) {
     	try {    		
-    		CategoryResource categoryResource = new CategoryResource(); 
-    		categoryResource.setId(resId);
-    		List<String> filters = new ArrayList<String>();
-    		filters.add(ConfigUtil.RESTREE_REPORT_TYPE.SMARTBIX_PAGE);//自助仪表盘
-    		filters.add(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY);//即席查询
-    		//影响性分析
-    		List<IDocument> list = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);    
+    		if(StringUtil.isNullOrEmpty(resIds)) {
+    			return CommonUtils.getFailData(pageIndex, pageSize, "getReportByIndexResId error：resids is null");
+    		}    		
+    		String[] arryResIds = resIds.split(",");
+    		List<IDocument> list = new ArrayList<IDocument>();
+    		for(String resId : arryResIds) {
+        		//影响性分析
+    			CategoryResource categoryResource = new CategoryResource(); 
+        		categoryResource.setId("AUGMENTED_DATASET_MEASURE." + resId);
+        		List<String> filters = new ArrayList<String>();
+        		filters.add(ConfigUtil.RESTREE_REPORT_TYPE.SMARTBIX_PAGE);//自助仪表盘
+        		filters.add(ConfigUtil.RESTREE_REPORT_TYPE.COMBINED_QUERY);//即席查询
+        		List<IDocument> tmpList = MetadataModule.getInstance().searchByReferenced(categoryResource, filters);
+        		if(tmpList != null && tmpList.size() > 0) {
+        			list.addAll(tmpList);
+        		}
+    		}
     		if(list != null && list.size() > 0) {
     	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
     	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
