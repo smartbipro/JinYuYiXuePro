@@ -34,7 +34,9 @@ BaseFrameView.prototype.executeCmd = function (commands, params, module) {
  * 查询框点击查询按钮事件
  */
 BaseFrameView.prototype.jinyuSearch = function(){
-	console.log(document.getElementById('jinyuSearchInput').value);
+	var queryValue = document.getElementById('jinyuSearchInput').value;
+	var bannerView = registry.get('bannerView');
+	bannerView.createCustomeOpenTabByUrl("数据门户指标查询","../vision/athena/index.jsp?query=" + queryValue + "&isNew=true");
 }
 
 /**
@@ -43,6 +45,6 @@ BaseFrameView.prototype.jinyuSearch = function(){
 BaseFrameView.prototype.jinyuSearchKeyDown = function(e){
 	var evt = window.event || e;
 	if(evt.keyCode == 13){
-		console.log(e.target.value);
+		this.jinyuSearch();
 	}
 }

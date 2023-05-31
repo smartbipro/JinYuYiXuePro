@@ -256,3 +256,94 @@ CustomeSmartbiXCommand.prototype.reSetTabCaption = function(tab, len){
 		}
 	}
 }
+
+/**
+ * 在新Tab中打开URL
+ * isForce 是否强制执行，执行过isHandledMessage时，不需要再进行isHandledMessage验证
+ */
+CustomeSmartbiXCommand.prototype.createCustomeTabByUrlData = function(data, isForce) {
+	if (isForce !== true && this.isHandledMessage(data)) {
+		return;
+	}
+	var action = 'OPEN';
+	var resType = data.resType || 'SMARTBIX_PAGE';
+	var resId = data.id;
+	var tabId = [ resId, action ];
+	var tabName = data.alias || data.name;
+	var manager = registry.get('CurrentManager');
+	if (data.paramsInfo) {
+    	// 带有参数信息时同一资源允许打开多次
+		tabId.push(JSON.stringify(data.paramsInfo));
+	}
+	var tab = manager.createTab(tabId, tabName, undefined, undefined, resType);
+	if (!tab) {
+		return;
+	}
+	var cmd = 'URLLinkCommand';
+	var commandFactory = manager.getCommandFactory();
+	var command = tab.command = commandFactory.getCommand(cmd);
+	if (!command) {
+		tab.doClose();
+		return;
+	}
+	if (command.onClose) {
+		command.onClose.subscribe(function() {
+			tab.doClose();
+    	}, command);
+    	command.onClose.subscribe(function() {
+      		tab.doClose();
+		}, this);
+	}
+	this.reSetTabCaption(tab, 6);
+	command.openLinkInCurrentWindow(data.url, data);
+	manager.setCommand(tab, command);
+};
+
+
+/**
+ * 在新Tab中打开URL
+ * isForce 是否强制执行，执行过isHandledMessage时，不需要再进行isHandledMessage验证
+ */
+CustomeSmartbiXCommand.prototype.createCustomeIndexTabByUrlData = function(data, isForce) {
+	if (isForce !== true && this.isHandledMessage(data)) {
+		return;
+	}
+	var manager = registry.get('CurrentManager');
+	for(var i in manager.tabControl.activeTabQueue){
+		var tmpTab = manager.tabControl.activeTabQueue[i];
+		if(tmpTab.title == data.name){
+			tmpTab.btnClose.click();
+		}
+	}
+	var action = 'OPEN';
+	var resType = data.resType || 'SMARTBIX_PAGE';
+	var resId = data.id;
+	var tabId = [ resId, action ];
+	var tabName = data.alias || data.name;
+	if (data.paramsInfo) {
+    	// 带有参数信息时同一资源允许打开多次
+		tabId.push(JSON.stringify(data.paramsInfo));
+	}
+	var tab = manager.createTab(tabId, tabName, undefined, undefined, resType);
+	if (!tab) {
+		return;
+	}
+	var cmd = 'URLLinkCommand';
+	var commandFactory = manager.getCommandFactory();
+	var command = tab.command = commandFactory.getCommand(cmd);
+	if (!command) {
+		tab.doClose();
+		return;
+	}
+	if (command.onClose) {
+		command.onClose.subscribe(function() {
+			tab.doClose();
+    	}, command);
+    	command.onClose.subscribe(function() {
+      		tab.doClose();
+		}, this);
+	}
+	this.reSetTabCaption(tab, 6);
+	command.openLinkInCurrentWindow(data.url, data);
+	manager.setCommand(tab, command);
+};
