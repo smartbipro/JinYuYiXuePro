@@ -312,7 +312,18 @@ CustomeSmartbiXCommand.prototype.createCustomeIndexTabByUrlData = function(data,
 	for(var i in manager.tabControl.activeTabQueue){
 		var tmpTab = manager.tabControl.activeTabQueue[i];
 		if(tmpTab.title == data.name){
-			tmpTab.btnClose.click();
+			//tmpTab.btnClose.click();
+			if(tmpTab.customeDataPortalUrl == data.url){
+				return;
+			}
+			if(tmpTab.command && tmpTab.command.commandFactory && tmpTab.command.commandFactory.currentCommand 
+			&& tmpTab.command.commandFactory.currentCommand.parentObj 
+			&& tmpTab.command.commandFactory.currentCommand.parentObj.getElementsByTagName("form")
+			&& tmpTab.command.commandFactory.currentCommand.parentObj.getElementsByTagName("form")[0]){
+				tmpTab.command.commandFactory.currentCommand.parentObj.getElementsByTagName("form")[0].action = data.url;
+				tmpTab.command.commandFactory.currentCommand.parentObj.getElementsByTagName("form")[0].submit(); 	
+			}
+			return;
 		}
 	}
 	var action = 'OPEN';
@@ -328,6 +339,7 @@ CustomeSmartbiXCommand.prototype.createCustomeIndexTabByUrlData = function(data,
 	if (!tab) {
 		return;
 	}
+	tab.customeDataPortalUrl = data.url;
 	var cmd = 'URLLinkCommand';
 	var commandFactory = manager.getCommandFactory();
 	var command = tab.command = commandFactory.getCommand(cmd);

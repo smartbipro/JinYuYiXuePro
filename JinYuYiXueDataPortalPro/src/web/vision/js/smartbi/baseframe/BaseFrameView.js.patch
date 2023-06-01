@@ -36,7 +36,7 @@ BaseFrameView.prototype.executeCmd = function (commands, params, module) {
 BaseFrameView.prototype.jinyuSearch = function(){
 	var queryValue = document.getElementById('jinyuSearchInput').value;
 	var bannerView = registry.get('bannerView');
-	bannerView.createCustomeOpenTabByUrl("数据门户指标查询","../vision/athena/index.jsp?query=" + queryValue + "&isNew=true");
+	bannerView.createCustomeIndexTabByUrlData("数据门户指标查询","../vision/athena/index.jsp?query=" + queryValue + "&isNew=true");
 }
 
 /**
