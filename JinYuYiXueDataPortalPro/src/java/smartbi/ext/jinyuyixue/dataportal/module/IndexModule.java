@@ -145,7 +145,10 @@ public class IndexModule {
 			String purview, int pageIndex, int pageSize) {
     	try {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
-	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
+	    	List<Object> tmpPageList = new ArrayList<Object>();
+	    	if(list.size() >= (pageIndex-1) * pageSize) {
+	    		tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
+	    	}
 	    	if(tmpPageList == null) {
 	    		return CommonUtils.getSuccessData(new JSONArray() , pageIndex, pageSize, list.size());
 	    	}
@@ -199,7 +202,10 @@ public class IndexModule {
     		//获取指标信息
     		SearchResult<MetricsBO> searchResult = MetricsModelForVModule.getInstance().getMetricsManageService().searchMetrics(metricsFilter, purview);
     		List<MetricsBO> list = searchResult.getResultList();
-	    	List<Object> tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);
+    		List<Object> tmpPageList = new ArrayList<Object>();
+    		if(list.size() >= (pageIndex-1) * pageSize) {
+    			tmpPageList = PageUtil.startPage(list, pageIndex, pageSize);	
+    		}
 	    	List<ICatalogElement> pageList = changeToCatalogElementList(tmpPageList);
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheIndexData);
 	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());

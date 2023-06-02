@@ -90,8 +90,11 @@ public class ReportModule {
 	    	}
 	    	if(list != null && list.size() == 0) {
 	    		return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize, list.size());
-	    	}	    	
-	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
+	    	}	    
+	    	List<ICatalogSearchResult> pageList = new ArrayList<ICatalogSearchResult>();
+    		if(list.size() >= (pageIndex-1) * pageSize) {
+    			pageList = PageUtil.startPage(list, pageIndex, pageSize);
+    		}
 	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByCatalog(pageList, CacheDataUtil.cacheReportData, true);
 	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
@@ -169,7 +172,10 @@ public class ReportModule {
         		}
     		}
     		if(list != null && list.size() > 0) {
-    	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
+    	    	List<IDocument> pageList = new ArrayList<IDocument>();
+        		if(list.size() >= (pageIndex-1) * pageSize) {
+        			pageList = PageUtil.startPage(list, pageIndex, pageSize);
+        		}
     	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
     	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());    			
     		}
@@ -361,7 +367,10 @@ public class ReportModule {
     		//血缘关系查询
     		List<IDocument> list = MetadataModule.getInstance().searchReferringTo(categoryResource, filters);    
     		if(list != null && list.size() > 0) {
-    	    	List<IDocument> pageList = PageUtil.startPage(list, pageIndex, pageSize);
+    			List<IDocument> pageList = new ArrayList<IDocument>();
+        		if(list.size() >= (pageIndex-1) * pageSize) {
+        			pageList = PageUtil.startPage(list, pageIndex, pageSize);
+        		}
     	    	JSONArray resultList = CommonUtils.reSetIndexModelAndReportDataListByDoc(pageList, CacheDataUtil.cacheReportData, true);
     	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());    			
     		}

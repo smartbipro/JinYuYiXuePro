@@ -1,6 +1,7 @@
 package smartbi.ext.jinyuyixue.dataportal.module;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +127,11 @@ public class DatasetModule {
 			String purview, int pageIndex, int pageSize) {
     	try {
 	    	List<ICatalogSearchResult> list = catalogTreeModule.searchCatalogElementLikeAliasByType(types, alias, purview);
-	    	List<ICatalogSearchResult> pageList = PageUtil.startPage(list, pageIndex, pageSize);
+	    	
+	    	List<ICatalogSearchResult> pageList = new ArrayList<ICatalogSearchResult>();
+    		if(list.size() >= (pageIndex-1) * pageSize) {
+    			pageList = PageUtil.startPage(list, pageIndex, pageSize);
+    		}
 	    	JSONArray resultList = reSetIndexDataList(pageList, CacheDataUtil.cacheDSData);
 	    	return CommonUtils.getSuccessData(resultList, pageIndex, pageSize, list.size());
     	}catch(Exception e) {
