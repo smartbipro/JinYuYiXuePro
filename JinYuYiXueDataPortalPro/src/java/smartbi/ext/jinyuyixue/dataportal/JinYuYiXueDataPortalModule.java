@@ -239,14 +239,14 @@ public class JinYuYiXueDataPortalModule implements IModule {
     
     /**
 	 * 根据指标id获取影响性的模型列表数据
-	 * @param resId     模型的资源id
+	 * @param resIds     模型的资源id
 	 * @param pageIndex 页码
 	 * @param pageSize 每页大小
 	 * @return result 
      * @return
      */
-    public JSONObject getDataModelByIndexResId(String resId, int pageIndex, int pageSize) {
-    	return datasetModule.getDataModelByIndexResId(resId, pageIndex, pageSize);
+    public JSONObject getDataModelByIndexResId(String resIds, int pageIndex, int pageSize) {
+    	return datasetModule.getDataModelByIndexResId(resIds, pageIndex, pageSize);
     }
 	
     /**

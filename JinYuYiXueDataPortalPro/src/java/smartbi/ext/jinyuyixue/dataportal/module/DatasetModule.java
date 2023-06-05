@@ -17,6 +17,7 @@ import smartbi.ext.jinyuyixue.dataportal.util.PageUtil;
 import smartbi.net.sf.json.JSONArray;
 import smartbi.net.sf.json.JSONObject;
 import smartbi.usermanager.UserManagerModule;
+import smartbi.util.StringUtil;
 /**
  * 数据集模块实现类
  */
@@ -50,47 +51,57 @@ public class DatasetModule {
     
     /**
 	 * 根据指标id获取影响性的模型列表数据
-	 * @param resId     资源id
+	 * @param resIds     资源id
 	 * @param pageIndex 页码
 	 * @param pageSize 每页大小
 	 * @return result 
      * @return
      */
-    public JSONObject getDataModelByIndexResId(String resId, int pageIndex, int pageSize) {
+    public JSONObject getDataModelByIndexResId(String resIds, int pageIndex, int pageSize) {
     	try {
+    		if(StringUtil.isNullOrEmpty(resIds)) {
+    			return CommonUtils.getSuccessData(new JSONArray(), pageIndex, pageSize, 0);
+    		}
     		boolean isOnCache = CacheDataUtil.isOnCache();
     		//缓存数据
     		Map<String, JSONObject> cacheDSData = CacheDataUtil.cacheDSData;
     		//是否有创建报表的权限
-        	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();    		
-    		if(cacheDSData != null && isOnCache) {
-    			JSONObject cacheDataModelRec = cacheDSData.get(resId);
-        		if(cacheDataModelRec != null) {
-        			cacheDataModelRec = CommonUtils.addOpAuthorized(cacheDataModelRec, opAuthorized);    			
-        			cacheDSData.put(resId, cacheDataModelRec);
-        			JSONArray data = new JSONArray();  
-        			data.put(cacheDataModelRec);
-        			return CommonUtils.getSuccessData(data, pageIndex, pageSize, data.length());
+        	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();
+        	//返回的列表数据
+        	JSONArray data = new JSONArray();
+        	//资源id数组
+    		String[] resIdArry = resIds.split(",");
+    		for(String resId : resIdArry) {
+        		if(cacheDSData != null && isOnCache) {
+        			JSONObject cacheDataModelRec = cacheDSData.get(resId);
+            		if(cacheDataModelRec != null) {
+            			cacheDataModelRec = CommonUtils.addOpAuthorized(cacheDataModelRec, opAuthorized);    			
+            			cacheDSData.put(resId, cacheDataModelRec);
+            			data.put(cacheDataModelRec);
+            			continue;
+            		}    			
+        		}
+        		
+        		CatalogElement element = catalogTreeModule.getCatalogElementById(resId);
+        		if(element == null) {
+        			continue;
+        		}
+        		JSONObject map = CommonUtils.createJsonByElement(element);
+        		//添加默认部门
+        		map = CommonUtils.addDefaultDepartment(map, element);      		
+        		//添加指标路径
+        		map = CommonUtils.addIndexPath(map, element);
+        		//添加授权
+        		map = CommonUtils.addIsAuthorized(map, element);
+        		//是否有创建即席查询、自助仪表盘权限
+        		map = CommonUtils.addOpAuthorized(map, opAuthorized);
+        		//添加指标模型id和数据模型id
+        		map = addModelData(map, resId);
+        		//加载如返回列表中    		
+        		data.put(map);    		
+        		if(cacheDSData != null && isOnCache) {
+        			cacheDSData.put(resId, map);
         		}    			
-    		}
-    		
-    		CatalogElement element = catalogTreeModule.getCatalogElementById(resId);
-    		JSONArray data = new JSONArray();
-    		JSONObject map = CommonUtils.createJsonByElement(element);
-    		//添加默认部门
-    		map = CommonUtils.addDefaultDepartment(map, element);      		
-    		//添加指标路径
-    		map = CommonUtils.addIndexPath(map, element);
-    		//添加授权
-    		map = CommonUtils.addIsAuthorized(map, element);
-    		//是否有创建即席查询、自助仪表盘权限
-    		map = CommonUtils.addOpAuthorized(map, opAuthorized);
-    		//添加指标模型id和数据模型id
-    		map = addModelData(map, resId);
-    		//加载如返回列表中    		
-    		data.put(map);    		
-    		if(cacheDSData != null && isOnCache) {
-    			cacheDSData.put(resId, map);
     		}
 	    	return CommonUtils.getSuccessData(data, pageIndex, pageSize, data.length());
     	}catch(Exception e) {
