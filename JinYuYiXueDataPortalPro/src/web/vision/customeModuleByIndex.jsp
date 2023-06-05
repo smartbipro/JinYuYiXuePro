@@ -106,8 +106,8 @@ input{width:300px}
 	<hr>	
 	<div>
 	<label style="color:red;">实现对象(module)：</label><input type="text" id="moduleName" value="JinYuYiXueDataPortalModule"/>
-	<label>接口方法：</label><input type="text" id="moduleFn" value="getDataModelByIndexResId"/>
-	<label>参数：</label><input type="text" style="width:400px;"id="params" value="'I8a8af1ef01801c6f1c6f5082018040e28fd511e1',1,10"/>
+	<label>接口方法：</label><input type="text" id="moduleFn" value="getReportByIndexResId"/>
+	<label>参数：</label><input type="text" style="width:400px;"id="params" value="'AUGMENTED_DATASET_MEASURE.I8a8af1ef01801c6f1c6f5082018040e28fe711e2.MT_METRICS.a84de8c11c296c10c957a41fa7ac5837',1,10"/>
 	<input type="button" value="调用接口" onclick="doModule();" style="width:100px;">
 	</div>
 	<hr>	

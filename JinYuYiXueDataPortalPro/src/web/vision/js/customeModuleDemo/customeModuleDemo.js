@@ -294,7 +294,7 @@ function createTabByUrl(){
 		alert("传入的类型不正确:" + type);
 	}	
 }
-
+var isok = false;
 function createTabTest(flag){
 	var bannerView = registry.get('bannerView');
 	switch(flag){
@@ -323,7 +323,13 @@ function createTabTest(flag){
 			bannerView.openCustomeTabByResId('dashboard',false,'0e6f2e9d7b2231ff5d16d15fb4ef750b');
 		break;	
 		case "9"://打开窗口
-			bannerView.createCustomeOpenTabByUrl("明细报表","../vision/customeModuleByIndex.jsp");
+			if(isok){
+				bannerView.createCustomeIndexDetailTabByUrl("明细报表","https://www.baidu.com");	
+				isok = false;
+			}else{
+				bannerView.createCustomeIndexDetailTabByUrl("明细报表","../vision/customeModuleByIndex.jsp");
+				isok = true;
+			}
 			break;
 	}
 }

@@ -240,7 +240,7 @@ BannerView.prototype.createCustomeOpenTabByUrl = function(text, url){
 
 
 /**
- * tab页中打开自定义的url窗口
+ * tab页中打开自定义的url窗口  指标查询功能
  * @param url 
  */
 BannerView.prototype.createCustomeIndexTabByUrlData = function(text, url){
@@ -264,5 +264,34 @@ BannerView.prototype.createCustomeIndexTabByUrlData = function(text, url){
 			uuid: this.getCustomeUuid()
 		} 
 		command.createCustomeIndexTabByUrlData(data, true);
+	}	
+}
+
+
+/**
+ * tab页中打开自定义的url窗口   指标详情功能
+ * @param url 
+ */
+BannerView.prototype.createCustomeIndexDetailTabByUrl = function(text, url){
+	var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+	var command = commandFactory.getCommand('CustomeSmartbiXCommand');
+	if(url) {
+		var commandFactory = jsloader.resolve('freequery.tree.superviseCommandFactory');
+		var command = commandFactory.getCommand('CustomeSmartbiXCommand');
+		var data ={
+			action: "SMARTBIX_OPEN_URL",
+			alias: text,
+			commandid: undefined,
+			from: "SMARTBIX",
+			id: "",
+			isOpenResourceParam: true,
+			method: "post",
+			name: text,
+			paramsInfo: [],
+			to: "SMARTBI",
+			url: url,
+			uuid: this.getCustomeUuid()
+		} 
+		command.createCustomeIndexDetailTabByUrl(data, true);
 	}	
 }

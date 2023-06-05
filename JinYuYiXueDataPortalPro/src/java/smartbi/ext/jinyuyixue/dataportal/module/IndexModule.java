@@ -373,12 +373,15 @@ public class IndexModule {
      * @return
      */
     private JSONObject addIndexFieldName(JSONObject json, MetricsBO metricsBO) { 
-		json.put("alias2", json.get("alias") + "(" + metricsBO.getFactTableField().getName() + ")");
-//		String modelId = metricsBO.getModelId();
-//		String dataModelId = CommonUtils.getDataModelIdByMetricsBo(metricsBO);
-//		json.put("modelId", modelId);
-//		json.put("dataModelId", dataModelId);
-		json.put("factTableName", metricsBO.getFactTable().getName());
+    	json.put("alias2", json.get("alias"));
+		json.put("factTableName", "");
+		
+		if(metricsBO.getFactTableField() != null) {
+			json.put("alias2", json.get("alias") + "(" + metricsBO.getFactTableField().getName() + ")");
+		}
+		if(metricsBO.getFactTable() != null) {
+			json.put("factTableName", metricsBO.getFactTable().getName());	
+		}
     	return json;
     }    
  
