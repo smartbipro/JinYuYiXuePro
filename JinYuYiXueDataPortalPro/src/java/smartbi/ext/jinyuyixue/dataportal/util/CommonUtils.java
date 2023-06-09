@@ -370,4 +370,17 @@ public class CommonUtils {
     	return dataModelId;    	
     }
     
+    
+    /**
+     * 将list的Object对象转换为ObjectArray数组
+     * @param list 列表对象
+     * @return
+     */
+    public static JSONArray listToJsonArray(List<JSONObject> list) {
+    	JSONArray result = new JSONArray();
+    	for(JSONObject obj : list) {
+    		result.put(obj);
+    	}
+    	return result;
+    }
 }

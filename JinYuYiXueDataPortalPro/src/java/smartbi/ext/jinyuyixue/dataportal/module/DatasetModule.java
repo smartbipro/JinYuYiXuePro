@@ -68,7 +68,8 @@ public class DatasetModule {
     		//是否有创建报表的权限
         	JSONObject opAuthorized = CommonUtils.getReportFunctionByCurrentUser();
         	//返回的列表数据
-        	JSONArray data = new JSONArray();
+        	//JSONArray data = new JSONArray();
+        	List<JSONObject> list = new ArrayList<JSONObject>();
         	//资源id数组
     		String[] resIdArry = resIds.split(",");
     		for(String resId : resIdArry) {
@@ -77,7 +78,8 @@ public class DatasetModule {
             		if(cacheDataModelRec != null) {
             			cacheDataModelRec = CommonUtils.addOpAuthorized(cacheDataModelRec, opAuthorized);    			
             			cacheDSData.put(resId, cacheDataModelRec);
-            			data.put(cacheDataModelRec);
+            			//data.put(cacheDataModelRec);
+            			list.add(cacheDataModelRec);
             			continue;
             		}    			
         		}
@@ -98,11 +100,19 @@ public class DatasetModule {
         		//添加指标模型id和数据模型id
         		map = addModelData(map, resId);
         		//加载如返回列表中    		
-        		data.put(map);    		
+        		//data.put(map);  
+        		list.add(map);
         		if(cacheDSData != null && isOnCache) {
         			cacheDSData.put(resId, map);
         		}    			
     		}
+    		//分页处理
+	    	List<JSONObject> pageList = new ArrayList<JSONObject>();
+    		if(list.size() >= (pageIndex-1) * pageSize) {
+    			pageList = PageUtil.startPage(list, pageIndex, pageSize);
+    		}
+    		//转换处理
+    		JSONArray data = CommonUtils.listToJsonArray(pageList);
 	    	return CommonUtils.getSuccessData(data, pageIndex, pageSize, data.length());
     	}catch(Exception e) {
     		LOG.error("getDataModelByIndexResId error：" + e.getMessage(),e);
